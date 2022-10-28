@@ -42,14 +42,14 @@ class App extends Component {
 
   client.onmessage = (msg) => {
     const obj = JSON.parse(msg.data);
-    // console.debug(obj);
     switch (obj.type) {
       case 'HANDSHAKE':
-        console.log(obj)
         this.setState({ turtleArray: obj.message.turtles });
-        // this.setState({ turtleArray: obj.message.turtles, world: obj.message.world, areas: obj.message.areas });
         break;
         case 'RESPONSE':
+          if (typeof(obj.message.data) === 'object') {
+            obj.message.data = JSON.stringify(obj.message.data)
+          }
           this.setState({serverMostRecentResponse: obj.message.data})
           break
         case 'INVENTORY':

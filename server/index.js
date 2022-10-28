@@ -152,13 +152,8 @@ wsServerTurtle.on('request', function(request) {
               }
             }
             sendToAllPortals(JSON.stringify(response))
-            // webservers[0].sendUTF())
-            // if (typeof(jsonMessage['computerId']) !== 'undefined') {
-            //     turtles[jsonMessage['computerId']] = connection
-            // }
             break;
           case "TURTLE_INVENTORY":
-            console.log(jsonMessage['response'])
             response = {
               'type': 'INVENTORY',
               'message': {
@@ -166,12 +161,7 @@ wsServerTurtle.on('request', function(request) {
                 'data': jsonMessage['response']
               }
             }
-            console.log(response)
             sendToAllPortals(JSON.stringify(response))
-            // webservers[0].sendUTF())
-            // if (typeof(jsonMessage['computerId']) !== 'undefined') {
-            //     turtles[jsonMessage['computerId']] = connection
-            // }
             break;
         }
       } catch (error) {
