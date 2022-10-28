@@ -1,9 +1,84 @@
+state = nil
+-- {
+--     heading = 0
+-- }
+-- heading == 0 -- Not Set
+-- heading == 1 -- North
+-- heading == 2 -- East
+-- heading == 3 -- South
+-- heading == 4 -- West
+
+settingsPath = '.settings'
+headingToString={[0]='N/A', [1]='North', [2]='East', [3]='South', [4]='West'}
+
+function saveState()
+    local file = fs.open(settingsPath, 'w')
+    file.write(textutils.serialize(state))
+    file.close()
+end
+
+function loadState()
+    if fs.exists(settingsPath) then
+        local file = fs.open(settingsPath, 'r')
+        local contents = file.readAll()
+        file.close()
+        state = textutils.unserialize(contents)
+    else
+        local file = fs.open(settingsPath, 'w')
+        file.close()
+    end
+end
+
 function connectToWebsocket() 
     os.sleep(3)
     ws, err = http.websocketAsync('ws://127.0.0.1:8081')
 end
 
-function splitString (inputstr, sep)
+function getHeading(forceNew)
+    if (forceNew ~= true) then
+        if state['heading'] ~= 0 then
+            return state['heading']
+        end
+    end
+
+    local x1, _, z1 = gps.locate()
+
+    local moved, _ = turtle.forward()
+    if (moved == false) then
+        turtle.dig()
+        moved, _ = turtle.forward()
+        if moved == false then
+            state['heading'] = 0
+            saveState()
+            return
+        end
+    end
+    local x2, _, z2 = gps.locate()
+    if z1 > z2 then
+        state['heading'] = 1
+    elseif z2 > z1 then
+        state['heading'] = 3
+    elseif x1 > x2 then
+        state['heading'] = 4
+    elseif x2 > x1 then
+        state['heading'] = 2
+    end
+    saveState()
+end
+
+function getGPS(forceNew)
+    if (forceNew ~= true) then
+        if state['gps'] ~= nil then
+            return state['gps']
+        end
+    end
+
+    x, y, z = gps.locate()
+    state['gps'] = {['x']=x,['y']=y,['z']=z}
+    saveState()
+end
+
+function splitString(inputstr, sep)
     if sep == nil then
             sep = "%s"
     end
@@ -31,24 +106,108 @@ function dump(o)
     end
 end
 
+function getVisisbleBlocks()
+    _, dataDown = turtle.inspectDown()
+    _, dataFront = turtle.inspect()
+    _, dataUp = turtle.inspectUp()
+    return dataDown["name"], dataFront["name"], dataUp["name"]
+end
+
+function up() 
+    moved, _ = turtle.up()
+    if (moved) then
+        state['gps']['y'] = state['gps']['y'] + 1
+        saveState()
+    end
+    return moved
+end
+
+function down() 
+    moved, _ = turtle.down()
+    if (moved) then
+        state['gps']['y'] = state['gps']['y'] - 1
+        saveState()
+    end
+    return moved
+end
+
+function forward()
+    moved, _ = turtle.forward()
+    if (moved) then
+        if state['heading'] == 1 then
+            state['gps']['z'] = state['gps']['z'] - 1
+        elseif state['heading'] == 2 then
+            state['gps']['x'] = state['gps']['x'] + 1
+        elseif state['heading'] == 3 then
+            state['gps']['x'] = state['gps']['x'] - 1
+        elseif state['heading'] == 4 then
+            state['gps']['z'] = state['gps']['z'] + 1
+        end
+        saveState()
+    end
+    return moved
+end
+
+function back()
+    moved, _ = turtle.back()
+    if (moved) then
+        if state['heading'] == 1 then
+            state['gps']['z'] = state['gps']['z'] + 1
+        elseif state['heading'] == 2 then
+            state['gps']['x'] = state['gps']['x'] - 1
+        elseif state['heading'] == 3 then
+            state['gps']['x'] = state['gps']['x'] + 1
+        elseif state['heading'] == 4 then
+            state['gps']['z'] = state['gps']['z'] - 1
+        end
+        saveState()
+    end
+    return moved
+end
+
+function turnLeft()
+    worked, _ = turtle.turnLeft()
+    if worked then
+        local newHeading = state['heading'] - 1
+        if newHeading == 0 then
+            newHeading = 4
+        end
+        state['heading'] = newHeading
+        saveState()
+    end
+    return worked
+end
+
+function turnRight()
+    worked, _ = turtle.turnRight()
+    if worked then
+        local newHeading = state['heading'] + 1
+        if newHeading == 5 then
+            newHeading = 1
+        end
+        
+        state['heading'] = newHeading
+        saveState()
+    end
+    return worked
+end
 stringtoboolean={ ["true"]=true, ["false"]=false }
 
 function parseWebSocketRecieve(data)
     if string.starts(data, '\\') then
         splitup = splitString(data)
-        print(dump(splitup))
         if splitup[1] == '\\forward' then
-            ws.send('{"type":"COMMAND_RESPONSE","response":"'.. dump(turtle.forward()) ..'"}')
+            ws.send('{"type":"COMMAND_RESPONSE","response":"'.. dump(forward()) ..'"}')
         elseif splitup[1] == '\\back' then
-            ws.send('{"type":"COMMAND_RESPONSE","response":"'.. dump(turtle.back()) ..'"}')
+            ws.send('{"type":"COMMAND_RESPONSE","response":"'.. dump(back()) ..'"}')
         elseif splitup[1] == '\\up' then
-            ws.send('{"type":"COMMAND_RESPONSE","response":"'.. dump(turtle.up()) ..'"}')
+            ws.send('{"type":"COMMAND_RESPONSE","response":"'.. dump(up()) ..'"}')
         elseif splitup[1] == '\\down' then
-            ws.send('{"type":"COMMAND_RESPONSE","response":"'.. dump(turtle.down()) ..'"}')
+            ws.send('{"type":"COMMAND_RESPONSE","response":"'.. dump(down()) ..'"}')
         elseif splitup[1] == '\\turnLeft' then
-            ws.send('{"type":"COMMAND_RESPONSE","response":"'.. dump(turtle.turnLeft()) ..'"}')
+            ws.send('{"type":"COMMAND_RESPONSE","response":"'.. dump(turnLeft()) ..'"}')
         elseif splitup[1] == '\\turnRight' then
-            ws.send('{"type":"COMMAND_RESPONSE","response":"'.. dump(turtle.turnRight()) ..'"}')
+            ws.send('{"type":"COMMAND_RESPONSE","response":"'.. dump(turnRight()) ..'"}')
         elseif splitup[1] == '\\dig' then
             -- this has a optional side param
             if splitup[2] ~= nil then
@@ -253,19 +412,31 @@ function parseWebSocketRecieve(data)
                 inventory[i] = dump(turtle.getItemDetail(i))
             end
             ws.send('{"type":"TURTLE_INVENTORY","response":{"inventory":"'.. dump(inventory) ..'","fuel":"'.. dump(turtle.getFuelLevel()) ..'"}}')
+        elseif splitup[1] == '\\scanVisible' then
+            nameDown, nameFront, nameUp = getVisisbleBlocks()
+            ws.send('{"type":"COMMAND_RESPONSE","response":{"down":"'.. dump(nameDown) ..'", "front":"'.. dump(nameFront) ..'","up":"'.. dump(nameUp) ..'","heading":'..dump(state['heading'])..',"gps":'..textutils.serializeJSON(state['gps'])..'}}')
+            ws.send('{"type":"WORLD_UPDATE","response":{"down":"'.. dump(nameDown) ..'", "front":"'.. dump(nameFront) ..'","up":"'.. dump(nameUp) ..'","heading":'..dump(state['heading'])..',"gps":'..textutils.serializeJSON(state['gps'])..'}}')
+        elseif splitup[1] == '\\printState' then
+            ws.send('{"type":"COMMAND_RESPONSE","response":'.. dump(textutils.serializeJSON(state)) ..'}')
         else
             ws.send('{"type":"COMMAND_RESPONSE","response":"UNKNOWN COMMAND"}')
         end
+        print(textutils.serializeJSON(state))
     end
 end
 
 function main()
-    
+    loadState()
+    if (state['gps'] == nil or state['heading'] == 0) then
+        getHeading(true)
+    end
+    if (state['gps'] == nil) then
+        getGPS()
+    end
     connectToWebsocket()
     while true do
         local e = {os.pullEventRaw()}
         local event = e[1]
-        -- print (event)
         if event == "websocket_success" then
             print("Connected!")
             ws = e[3]
