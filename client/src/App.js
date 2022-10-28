@@ -81,9 +81,12 @@ class App extends Component {
           turtleLocal[obj.message.computerId]['fuel'] = obj.message.data.fuel
           this.setState({turtles: turtleLocal})
           break
-      default:
-        console.error('Could not parse websocket message', obj);
-        break;
+        case "WORLD_UPDATE":
+          this.setState({world: obj.message.data})
+          break
+        default:
+          console.error('Could not parse websocket message', obj);
+          break;
     }
   };
 

@@ -2,13 +2,38 @@ var WebSocketServer = require('websocket').server;
 var http = require('http');
 var parseArgs = require('minimist')
 var uuid = require('uuid');
+var fs = require('fs')
 
 let serverPortPortal = 8080
 let serverPortTurtle = 8081
+let worldSavePath='world.json'
 let turtles = {}
 let turtlesByUUID = {}
 let webservers = []
+let world = {}
 
+function sendWorldData() {
+  let response = {
+    'type': 'WORLD_UPDATE',
+    'message': {
+      'data': world
+    }
+  }
+  sendToAllPortals(JSON.stringify(response))
+}
+
+function saveWorld() {
+  fs.writeFileSync(worldSavePath, JSON.stringify(world))
+  sendWorldData()
+}
+
+function loadWorld() {
+  if (fs.existsSync(worldSavePath)) {
+    world = JSON.parse(fs.readFileSync(worldSavePath))
+  }
+}
+
+loadWorld()
 var serverPortal = http.createServer(function(request, response) {
   console.log((new Date()) + ' Received request for ' + request.url);
   response.writeHead(404);
@@ -44,6 +69,7 @@ function parsePortalWSCommands(connection, message) {
       case 'HANDSHAKE':
         webservers.push(connection)
         connection.sendUTF(JSON.stringify({'type':'HANDSHAKE', 'message': {'turtles': Object.keys(turtles)}}))
+        sendWorldData()
         break
       default:
         console.log(fullMessage)
@@ -54,6 +80,7 @@ function parsePortalWSCommands(connection, message) {
       
   }
 }
+
 
 wsServerPortal.on('request', function(request) {
   if (!originIsAllowed(request.origin)) {
@@ -163,6 +190,46 @@ wsServerTurtle.on('request', function(request) {
             }
             sendToAllPortals(JSON.stringify(response))
             break;
+          case "WORLD_UPDATE":
+            let xPos=jsonMessage['response']['gps']['x']
+            let yPos=jsonMessage['response']['gps']['y']
+            let zPos=jsonMessage['response']['gps']['z']
+            let heading=jsonMessage['response']['heading']
+            let blockNameDown=jsonMessage['response']['down']=='nil'?'minecraft:air':jsonMessage['response']['down']
+            let blockNameFront=jsonMessage['response']['front']=='nil'?'minecraft:air':jsonMessage['response']['front']
+            let blockNameUp=jsonMessage['response']['up']=='nil'?'minecraft:air':jsonMessage['response']['up']
+            // CurrentBlock
+            world[xPos+'_'+yPos+'_'+zPos] = {'blockName': 'minecraft:air'}
+            // -- heading == 0 -- Not Set
+            // -- heading == 1 -- North
+            // -- heading == 2 -- East
+            // -- heading == 3 -- South
+            // -- heading == 4 -- West
+            switch(heading) {
+              case 1:
+                // In front block
+                world[xPos+'_'+yPos+'_'+(zPos-1)] = {'blockName': blockNameFront}
+                break
+              case 2:
+                // In front block
+                world[(xPos+1)+'_'+yPos+'_'+zPos] = {'blockName': blockNameFront}
+                break
+              case 3:
+                // In front block
+                world[xPos+'_'+yPos+'_'+(zPos+1)] = {'blockName': blockNameFront}
+                break
+              case 4:
+                // In front block
+                world[(xPos-1)+'_'+yPos+'_'+zPos] = {'blockName': blockNameFront}
+                break
+            }
+            // below block
+            world[xPos+'_'+(yPos-1)+'_'+zPos] = {'blockName': blockNameDown}
+            // above block
+            world[xPos+'_'+(yPos+1)+'_'+zPos] = {'blockName': blockNameUp}
+
+            saveWorld()
+            break
         }
       } catch (error) {
         console.log(error)
