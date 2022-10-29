@@ -1,11 +1,12 @@
 import logo from './logo.svg';
 import './App.css';
 import { w3cwebsocket as W3CWebSocket } from 'websocket';
-
+import React from 'react';
 
 import { Component } from 'react';
 import { Button, Grid } from '@mui/material';
 import TurtlePortal from './routes/TurtlePortal';
+import Home from './components/ViewWorlds';
 
 class App extends Component {
 
@@ -163,8 +164,9 @@ class App extends Component {
               ))}
               </Grid>}
           </header>
-          
         }
+
+        {/* <Home/> */}
       </div>
     )
   };

@@ -9,7 +9,7 @@ import TurtlePortal from './routes/TurtlePortal';
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(
-  <>
+  <div>
   <CssBaseline />
   <BrowserRouter>
     <Switch>
@@ -20,7 +20,7 @@ root.render(
       {/* <Route path="*" element={<App/>}/> */}
     </Switch>
   </BrowserRouter>
-  </>
+  </div>
 );
 
 // If you want to start measuring performance in your app, pass a function
