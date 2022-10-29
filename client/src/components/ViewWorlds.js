@@ -1,9 +1,10 @@
 import React from 'react'
 import ThreeComponent from './ReactThreeCanvas';
 
-const Home=() => {
+const Home=(props) => {
+  let world = props['world']
   return (
-    <ThreeComponent></ThreeComponent>
+    <ThreeComponent world={world}/>
   );
 }
   

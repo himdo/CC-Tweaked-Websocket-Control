@@ -152,9 +152,6 @@ class App extends Component {
             {this.state.turtleArray && <Grid container>
               {this.state.turtleArray.map((item, index) => (
                 <Grid key={index}>
-                  {/* <Link to={'/portal/'+item+'/'}>
-                    Connect To {item}
-                  </Link> */}
                   <Button onClick={() => {
                     this.connectToTurtle(item)
                     }}>
@@ -166,7 +163,7 @@ class App extends Component {
           </header>
         }
 
-        {/* <Home/> */}
+        <Home world={this.state.world}/>
       </div>
     )
   };

@@ -4,12 +4,12 @@ import gsap from 'gsap';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js'
 import { EffectComposer } from 'three/examples/jsm/postprocessing/EffectComposer.js';
 import { RenderPass } from 'three/examples/jsm/postprocessing/RenderPass.js';
-import { VRButton } from 'three/examples/jsm/webxr/VRButton.js';
 import { vertex as basicVertex, fragment as basicFragment } from './shaders/basic';
 
 
 class ThreeCanvas {
     constructor(options) {
+      console.log(options)
       const { mountPoint, width, height } = options;
   
       // this is just here for reference. most of this file should be overwritten :)
@@ -17,7 +17,8 @@ class ThreeCanvas {
       // basics
       const clock = this.clock = new THREE.Clock();
       const scene = new THREE.Scene();
-      const camera = this.camera = new THREE.PerspectiveCamera( 75, width / height, 0.1, 1000 );
+      const camera = this.camera = new THREE.PerspectiveCamera( 45, width / height, 1, 1000 );
+      
       const renderer = this.renderer = new THREE.WebGLRenderer({
         alpha: true,
         antialias: true,
@@ -26,8 +27,12 @@ class ThreeCanvas {
       scene.background = new THREE.Color( 0xff0000 );
     //   scene.background = new THREE.Color( theme.colors.white );
       renderer.setSize( width, height );
-      camera.position.z = 0;
-  
+      // camera.position.z = 0;
+      const controls = this.controls = new OrbitControls(camera, renderer.domElement);
+      // camera.position.set(0,0,0.1)
+      camera.position.set( 0, 20, 100 );
+      // controls.target.set(5, 0, 0);
+      controls.update();
       // post processing support
       const composer = this.composer = new EffectComposer( renderer );
   
@@ -37,9 +42,6 @@ class ThreeCanvas {
   
       // mount to DOM
       mountPoint.appendChild( renderer.domElement );
-      // VR support
-      // renderer.xr.enabled = true;
-      // mountPoint.appendChild( VRButton.createButton( renderer ) );
   
       this.addMeshes(scene);
     }
@@ -64,9 +66,6 @@ class ThreeCanvas {
         side: THREE.DoubleSide,
         vertexShader: basicVertex,
         fragmentShader: basicFragment,
-        // vertexShader: document.getElementById( 'vertexShader' ).textContent,
-
-	    // fragmentShader: document.getElementById( 'fragmentShader' ).textContent,
         uniforms: {
           time: { value: 0 },
         },
@@ -82,7 +81,7 @@ class ThreeCanvas {
         cube.position.set(cubeInitialPositions[i].position.x, cubeInitialPositions[i].position.y, cubeInitialPositions[i].position.z,);
       }
   
-      cubeGroup.position.z = -7; // push 7 meters back
+      // cubeGroup.position.z = -7; // push 7 meters back
       gsap.to(cubeGroup.rotation, {duration: 10, y: Math.PI * 2, repeat: -1, ease: "none"});
       scene.add(cubeGroup);
     }
@@ -113,7 +112,7 @@ class ThreeCanvas {
         this.camera.aspect = canvas.clientWidth / canvas.clientHeight;
         this.camera.updateProjectionMatrix();
       }
-  
+      this.controls.update();
       this.composer.render();
     }
   }
