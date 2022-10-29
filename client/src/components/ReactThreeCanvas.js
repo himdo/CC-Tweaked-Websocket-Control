@@ -1,6 +1,7 @@
 import React from 'react';
 import ThreeCanvas from './ThreeCanvas';
 import "./ReactThreeCanvas.css"
+import { Button } from '@mui/material';
 
 class ThreeComponent extends React.Component {
 //   static contextType = AppState;
@@ -25,12 +26,17 @@ class ThreeComponent extends React.Component {
   }
 
   init = () => {
+    this.createCanvas()
+  }
+
+  createCanvas = () => {
     // const appState = this.context; // access to the React Context store
 
     const threeCanvas = new ThreeCanvas({
       mountPoint: this.threeCanvasEl.current,
       width: this.threeCanvasEl.current.clientWidth,
       height: this.threeCanvasEl.current.clientHeight,
+      props: this.props
     });
 
     // start draw loop
@@ -52,6 +58,9 @@ class ThreeComponent extends React.Component {
         className="threeComponent"
         // initialized={this.state.initialized}
       >
+        <Button onClick={() => {
+            this.createCanvas()
+          }}>Refresh</Button>
         <div className="visualizationMount" ref={this.threeCanvasEl}>
         </div>
       </div>

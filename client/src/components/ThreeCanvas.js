@@ -2,16 +2,19 @@ import * as THREE from 'three';
 import { Mesh, Vector3, MathUtils } from 'three';
 import gsap from 'gsap';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js'
+import { FlyControls } from 'three/examples/jsm/controls/FlyControls.js'
+import { FirstPersonControls } from 'three/examples/jsm/controls/FirstPersonControls'
+import { DragControls } from 'three/examples/jsm/controls/DragControls'
 import { EffectComposer } from 'three/examples/jsm/postprocessing/EffectComposer.js';
 import { RenderPass } from 'three/examples/jsm/postprocessing/RenderPass.js';
 import { vertex as basicVertex, fragment as basicFragment } from './shaders/basic';
-
+// import { materials } from './materials/materials'
+import materials from './materials/materials';
 
 class ThreeCanvas {
     constructor(options) {
-      console.log(options)
-      const { mountPoint, width, height } = options;
-  
+      const { mountPoint, width, height, props } = options;
+      this.world = props['world']
       // this is just here for reference. most of this file should be overwritten :)
   
       // basics
@@ -24,7 +27,7 @@ class ThreeCanvas {
         antialias: true,
       });
   
-      scene.background = new THREE.Color( 0xff0000 );
+      scene.background = new THREE.Color( 'blue' );
     //   scene.background = new THREE.Color( theme.colors.white );
       renderer.setSize( width, height );
       // camera.position.z = 0;
@@ -40,6 +43,11 @@ class ThreeCanvas {
       renderPass.clear = false;
       composer.addPass( renderPass );
   
+      // if this has already been mounted then delete the old one
+      if (mountPoint.children.length == 1) {
+        mountPoint.removeChild(mountPoint.children[0])
+      }
+
       // mount to DOM
       mountPoint.appendChild( renderer.domElement );
   
@@ -48,16 +56,18 @@ class ThreeCanvas {
   
     addMeshes(scene) {
       const cubeGroup = this.cubeGroup = new THREE.Group();
-      const cubeInitialPositions = [
-        {
-          rotation: new Vector3(35, 35, 0),
-          position: new Vector3(0, -0.5, 0),
-        },
-        {
-          rotation: new Vector3(-35, -95, 0),
-          position: new Vector3(0, 1, 0),
-        },
-      ];
+      const cubeInitialPositions = [];
+      for (let i = 0; i < Object.keys(this.world).length; i++) {
+        let key = Object.keys(this.world)[i]
+        let value = this.world[key]
+        let position = key.split('_')
+        let newBlock = {
+          rotation: new Vector3(0,0,0),
+          position: new Vector3(position[2],position[1],position[0]),
+          name: value['blockName']
+        }
+        cubeInitialPositions.push(newBlock)
+      }
   
       // some standard material or ShaderMaterial
       // const material = new THREE.MeshBasicMaterial( { color: theme.baseFontColor } );
@@ -67,14 +77,23 @@ class ThreeCanvas {
         vertexShader: basicVertex,
         fragmentShader: basicFragment,
         uniforms: {
-          time: { value: 0 },
+          uColor: {value: new THREE.Color('white')},
+          uOpacity: {value: 1.0}
         },
+        glslVersion: THREE.GLSL3
       });
-  
-      for (let i=0; i < 2; i++) {
+      if (cubeInitialPositions.length > 0) {
+        
+        this.camera.position.set( cubeInitialPositions[0]['position'].x, cubeInitialPositions[0]['position'].y, cubeInitialPositions[0]['position'].z );
+      }
+      for (let i=0; i < cubeInitialPositions.length; i++) {
         const geometry= new THREE.BoxGeometry();
-  
-        const cube = new Mesh( geometry, material );
+        let materialToPlace = material
+        console.log(cubeInitialPositions[i]['name'], materials[cubeInitialPositions[i]['name']])
+        if (materials[cubeInitialPositions[i]['name']]) {
+          materialToPlace = materials[cubeInitialPositions[i]['name']]
+        }
+        const cube = new Mesh( geometry, materialToPlace );
         cubeGroup.add(cube);
   
         cube.rotation.set(cubeInitialPositions[i].rotation.x, cubeInitialPositions[i].rotation.y, cubeInitialPositions[i].rotation.z,);
@@ -82,7 +101,7 @@ class ThreeCanvas {
       }
   
       // cubeGroup.position.z = -7; // push 7 meters back
-      gsap.to(cubeGroup.rotation, {duration: 10, y: Math.PI * 2, repeat: -1, ease: "none"});
+      // gsap.to(cubeGroup.rotation, {duration: 10, y: Math.PI * 2, repeat: -1, ease: "none"});
       scene.add(cubeGroup);
     }
   

@@ -1,9 +1,8 @@
-varying vec2 vUv;
-uniform float time;
+uniform vec3 uColor;
+uniform float uOpacity;
 
-void main()
-{
-    float opacity = pow(distance(vUv, vec2(1)), 5.0);
-    // gl_FragColor = vec4(vec3(0.0), opacity * 0.08);
-    gl_FragColor = vec4(vec3(0.0), opacity * 0.08);
+out vec4 outColor;
+
+void main(){
+    outColor = vec4(uColor, uOpacity);
 }
