@@ -7,7 +7,6 @@ const CameraController = () => {
   useEffect(
     () => {
       const controls = new OrbitControls(camera, gl.domElement);
-
       controls.minDistance = 3;
       controls.maxDistance = 20;
       return () => {
@@ -38,14 +37,20 @@ function Box(props) {
   )
 }
 
-export default function ThreeFiberTest() {
+export default function ThreeFiberTest(props) {
+  let world = props['world']
+  console.log(world)
+  
   return (
     <Canvas>
       <CameraController/>
       <ambientLight />
       <pointLight position={[10, 10, 10]} />
-      <Box position={[-1, 0, 0]} />
-      <Box position={[0, 0, 0]} />
+      {Object.keys(world).map((item, index) => (
+        <Box key={index} position={[item.split('_')[2], item.split('_')[1], item.split('_')[0]]} />
+      ))}
+      {/* <Box position={[-1, 0, 0]} /> */}
+      {/* <Box position={[0, 0, 0]} /> */}
     </Canvas>
   )
 }
