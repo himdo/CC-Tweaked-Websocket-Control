@@ -7,6 +7,7 @@ import { Component } from 'react';
 import { Button, Grid } from '@mui/material';
 import TurtlePortal from './routes/TurtlePortal';
 import Home from './components/ViewWorlds';
+import ThreeFiberTest from './components/ThreeFiberTest';
 
 class App extends Component {
 
@@ -163,7 +164,8 @@ class App extends Component {
           </header>
         }
 
-        <Home world={this.state.world}/>
+        {/* <Home world={this.state.world}/> */}
+        <ThreeFiberTest/>
       </div>
     )
   };
