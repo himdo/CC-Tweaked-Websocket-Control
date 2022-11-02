@@ -23,9 +23,9 @@ class App extends Component {
     attempts: 0,
     name: '',
     connectedTurtle: undefined,
+    knownBlocks: {},
     serverMostRecentResponse: ''
   };
-
 
   connect() {
     this.setState({ isLoading: true, isConnected: false, shouldFadeOut: false, attempts: 0, message: 'Connecting...' });
@@ -85,6 +85,16 @@ class App extends Component {
           break
         case "WORLD_UPDATE":
           this.setState({world: obj.message.data})
+
+          let temp = this.state.knownBlocks
+          Object.keys(obj.message.data).map((item,index) => {
+            if (!temp[obj.message.data[item]['blockName']]) {
+              temp[obj.message.data[item]['blockName']] = {'active': true}
+            }
+          })
+          if (temp !== this.state.knownBlocks) {
+            this.setState({knownBlocks: temp})
+          }
           break
         default:
           console.error('Could not parse websocket message', obj);
@@ -106,8 +116,6 @@ class App extends Component {
       }, 1000 + 1000 * Math.pow(2, Math.min(attempts, 8)));
     };
   };
-
-  
 
   connectToTurtle(turtleId) {
     console.log(turtleId)
@@ -165,7 +173,7 @@ class App extends Component {
         }
 
         {/* <Home world={this.state.world}/> */}
-        <ThreeFiberTest world={this.state.world}/>
+        <ThreeFiberTest world={this.state.world} knownBlocks={this.state.knownBlocks}/>
       </div>
     )
   };
