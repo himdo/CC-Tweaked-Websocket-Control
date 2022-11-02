@@ -440,7 +440,7 @@ function main()
         if event == "websocket_success" then
             print("Connected!")
             ws = e[3]
-            ws.send('{"type":"HANDSHAKE","computerId":' .. os.getComputerID() .. '}')
+            ws.send('{"type":"HANDSHAKE","computerId":' .. os.getComputerID() .. ', "state":' .. dump(textutils.serializeJSON(state)) ..'}')
         elseif event == "websocket_failure" then
             printError("Failed to connect.")
             connectToWebsocket()

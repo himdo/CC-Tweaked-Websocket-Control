@@ -7,7 +7,7 @@ var fs = require('fs')
 let serverPortPortal = 8080
 let serverPortTurtle = 8081
 let worldSavePath='world.json'
-let turtles = {}
+let turtleConnectionsByComputerId = {}
 let turtlesByUUID = {}
 let webservers = []
 let world = {}
@@ -68,12 +68,18 @@ function parsePortalWSCommands(connection, message) {
     switch (command) {
       case 'HANDSHAKE':
         webservers.push(connection)
-        connection.sendUTF(JSON.stringify({'type':'HANDSHAKE', 'message': {'turtles': Object.keys(turtles)}}))
+        let turtleStates = {}
+        for(let i = 0; i < Object.keys(turtlesByUUID).length; i++) {
+          let info = turtlesByUUID[Object.keys(turtlesByUUID)[i]]
+          turtleStates[info['computerID']] = info['state']
+        }
+        connection.sendUTF(JSON.stringify({'type':'HANDSHAKE', 'message': {'turtleStates': turtleStates}}))
+        
         sendWorldData()
         break
       default:
         console.log(fullMessage)
-        turtles[turtleId].sendUTF(fullMessage)
+        turtleConnectionsByComputerId[turtleId].sendUTF(fullMessage)
         break
     }
   } catch (error) {
@@ -166,9 +172,9 @@ wsServerTurtle.on('request', function(request) {
           case "HANDSHAKE":
               
             if (typeof(jsonMessage['computerId']) !== 'undefined') {
-                // turtles[connection.id] = jsonMessage['computerId']
-                turtlesByUUID[connection.id] = jsonMessage['computerId']
-                turtles[jsonMessage['computerId']] = connection
+              console.log(jsonMessage)
+              turtlesByUUID[connection.id] = {'computerID': jsonMessage['computerId'], 'state': jsonMessage['state']}
+              turtleConnectionsByComputerId[jsonMessage['computerId']] = connection
             }
             break;
           case "COMMAND_RESPONSE":
@@ -184,7 +190,8 @@ wsServerTurtle.on('request', function(request) {
             response = {
               'type': 'INVENTORY',
               'message': {
-                'computerId': turtlesByUUID[connection.id],
+                'computerId': turtlesByUUID[connection.id]['computerID'],
+                'computerState': turtlesByUUID[connection.id]['state'],
                 'data': jsonMessage['response']
               }
             }

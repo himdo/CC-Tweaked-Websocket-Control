@@ -14,7 +14,7 @@ class App extends Component {
   state = {
     socket: undefined,
     turtles: {},
-    turtleArray: [],
+    turtleStates: {},
     world: {},
     isLoading: true,
     isConnected: false,
@@ -35,18 +35,14 @@ class App extends Component {
       console.info('[open] Connection established');
       client.send(JSON.stringify({ type: 'HANDSHAKE True' }));
       this.setState({ isLoading: false, isConnected: true, shouldFadeOut: true, attempts: 0, message: 'Connected...' });
-      // setTimeout(() => {
-          // if (history.location.pathname === '/') {
-          //     history.push('/dashboard');
-          // }
-      // }, 2500);
     }
 
   client.onmessage = (msg) => {
     const obj = JSON.parse(msg.data);
+    console.log(obj)
     switch (obj.type) {
       case 'HANDSHAKE':
-        this.setState({ turtleArray: obj.message.turtles });
+        this.setState({ turtleStates: obj.message.turtleStates });
         break;
         case 'RESPONSE':
           if (typeof(obj.message.data) === 'object') {
@@ -158,16 +154,17 @@ class App extends Component {
           !this.state.connectedTurtle &&
           <header className="App-header">
             <img src={logo} className="App-logo" alt="logo" />
-            {this.state.turtleArray && <Grid container>
-              {this.state.turtleArray.map((item, index) => (
+            {this.state.turtleStates && <Grid container>
+              {Object.keys(this.state.turtleStates).map((item, index) => {
+                return (
                 <Grid key={index}>
                   <Button onClick={() => {
                     this.connectToTurtle(item)
                     }}>
                     Connect To {item}
                   </Button>
-                </Grid>
-              ))}
+                </Grid>)
+                })}
               </Grid>}
           </header>
         }
