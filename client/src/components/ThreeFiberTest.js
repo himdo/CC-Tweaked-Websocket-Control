@@ -1,9 +1,10 @@
-import React, { Component, useEffect, useRef, useState } from 'react'
+import React, { Component, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react'
 import { Canvas, useFrame, useThree } from '@react-three/fiber'
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls';
 import Color from 'color';
 import { AxesHelper, MeshLambertMaterial, Vector3 } from 'three';
 import { GUI } from 'three/addons/libs/lil-gui.module.min.js';
+import { Text } from '@react-three/drei';
 
 function createNewControls(camera, gl, position) {
   let controls = new OrbitControls(camera, gl.domElement);
@@ -54,6 +55,34 @@ function Box(props) {
   )
 }
 
+function Compass(props) {
+  let cameraPosition = props.controls?.target
+  let cameraPositionX = 0
+  let cameraPositionY = 0
+  let cameraPositionZ = 0
+  if (cameraPosition) {
+    cameraPositionX = cameraPosition.x
+    cameraPositionY = cameraPosition.y
+    cameraPositionZ = cameraPosition.z
+  }
+  return (
+    <>
+      <primitive position={[cameraPositionX, cameraPositionY, cameraPositionZ]} object={new AxesHelper(10)} />
+      <Text scale={[10, 10, 10]} position={[cameraPositionX - 10, cameraPositionY, cameraPositionZ]}>
+        North
+      </Text>
+      <Text scale={[10, 10, 10]} position={[cameraPositionX + 10, cameraPositionY, cameraPositionZ]}>
+        South
+      </Text>
+      <Text scale={[10, 10, 10]} position={[cameraPositionX, cameraPositionY, cameraPositionZ + 10]}>
+        East
+      </Text>
+      <Text scale={[10, 10, 10]} position={[cameraPositionX, cameraPositionY, cameraPositionZ - 10]}>
+        West
+      </Text>
+    </>
+  )
+}
 
 export const hashCode = function (s) {
 	return s.split("").reduce(function (a, b) { a = ((a << 5) - a) + b.charCodeAt(0); return a & a }, 0);
@@ -129,7 +158,6 @@ class ThreeFiber extends Component {
   }
 
   updateStateControls(args) {
-    console.log(args)
     this.setState({controls: args})
   }
 
@@ -159,9 +187,17 @@ class ThreeFiber extends Component {
             opacity={opacity}/>
           })}
           
-          { this.state.controls && this.state.controls.target &&
-            <primitive position={this.state.controls.target} object={new AxesHelper(10)} />
-          }
+          <Compass controls={this.state.controls}/>
+          
+          {/* <Text scale={[10, 10, 10]}>
+            South
+          </Text>
+          <Text scale={[10, 10, 10]}>
+            East
+          </Text>
+          <Text scale={[10, 10, 10]}>
+            West
+          </Text> */}
         </Canvas>
       </div>
     )
