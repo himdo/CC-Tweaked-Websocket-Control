@@ -22,6 +22,16 @@ function sendWorldData() {
   sendToAllPortals(JSON.stringify(response))
 }
 
+function sendTurtleUpdate() {
+  let response = {
+    'type': 'TURTLE_UPDATE',
+    'message': {
+      'data': getTurtleStates()
+    }
+  }
+  sendToAllPortals(JSON.stringify(response))
+}
+
 function saveWorld() {
   fs.writeFileSync(worldSavePath, JSON.stringify(world))
   sendWorldData()
@@ -59,6 +69,15 @@ function originIsAllowed(origin) {
   return true;
 }
 
+function getTurtleStates () {
+  let turtleStates = {}
+  for(let i = 0; i < Object.keys(turtlesByUUID).length; i++) {
+    let info = turtlesByUUID[Object.keys(turtlesByUUID)[i]]
+    turtleStates[info['computerID']] = info['state']
+  }
+  return turtleStates
+}
+
 function parsePortalWSCommands(connection, message) {
   let turtleId = JSON.parse(message)['turtleId']
   let fullMessage = JSON.parse(message)['type']
@@ -68,11 +87,7 @@ function parsePortalWSCommands(connection, message) {
     switch (command) {
       case 'HANDSHAKE':
         webservers.push(connection)
-        let turtleStates = {}
-        for(let i = 0; i < Object.keys(turtlesByUUID).length; i++) {
-          let info = turtlesByUUID[Object.keys(turtlesByUUID)[i]]
-          turtleStates[info['computerID']] = info['state']
-        }
+        let turtleStates = getTurtleStates()
         connection.sendUTF(JSON.stringify({'type':'HANDSHAKE', 'message': {'turtleStates': turtleStates}}))
         
         sendWorldData()
@@ -208,7 +223,7 @@ wsServerTurtle.on('request', function(request) {
             console.log(turtlesByUUID[connection.id])
 
             turtlesByUUID[connection.id]['state'] = {'gps': jsonMessage['response']['gps'], 'heading': jsonMessage['response']['heading']}
-            console.log(turtlesByUUID[connection.id])
+
             // CurrentBlock
             world[xPos+'_'+yPos+'_'+zPos] = {'blockName': 'minecraft:air'}
             // -- heading == 0 -- Not Set
@@ -238,7 +253,7 @@ wsServerTurtle.on('request', function(request) {
             world[xPos+'_'+(yPos-1)+'_'+zPos] = {'blockName': blockNameDown}
             // above block
             world[xPos+'_'+(yPos+1)+'_'+zPos] = {'blockName': blockNameUp}
-
+            sendTurtleUpdate()
             saveWorld()
             break
         }

@@ -5,6 +5,7 @@ import Color from 'color';
 import { AxesHelper, Euler, MeshLambertMaterial, Quaternion, Vector3 } from 'three';
 import { GUI } from 'three/addons/libs/lil-gui.module.min.js';
 import { Text } from '@react-three/drei';
+import "./ReactThreeCanvas.css"
 
 function createNewControls(camera, gl, position) {
   let controls = new OrbitControls(camera, gl.domElement);
@@ -143,8 +144,13 @@ class ThreeFiber extends Component {
 
   setup() {
     let newGui = this.state.gui
-    if (typeof(newGui) === 'undefined') {
+    if (typeof(newGui) !== 'undefined') {
+      this.state.gui.destroy()
       newGui = new GUI({width: 310})
+      this.setState({gui: newGui})
+    } else {
+      newGui = new GUI({width: 310})
+      
       this.setState({gui: newGui})
     }
     const panel = newGui
@@ -215,7 +221,7 @@ class ThreeFiber extends Component {
             let positions = item.split('_')
             let name = this.props.world[item]['blockName']
             let opacity = undefined
-            if (this.state.settings && !this.state.settings[name]) {
+            if (this.state.settings && Object.keys(this.state.settings).length !== 0 && !this.state.settings[name]) {
               opacity = 0
             }
 

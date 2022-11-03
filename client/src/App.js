@@ -6,7 +6,6 @@ import React from 'react';
 import { Component } from 'react';
 import { Button, Grid } from '@mui/material';
 import TurtlePortal from './routes/TurtlePortal';
-import Home from './components/ViewWorlds';
 import ThreeFiberTest from './components/ThreeFiberTest';
 
 class App extends Component {
@@ -93,6 +92,9 @@ class App extends Component {
             this.setState({knownBlocks: temp})
           }
           break
+        case "TURTLE_UPDATE":
+          this.setState({ turtleStates: obj.message.data });
+          break
         default:
           console.error('Could not parse websocket message', obj);
           break;
@@ -170,7 +172,6 @@ class App extends Component {
           </header>
         }
 
-        {/* <Home world={this.state.world}/> */}
         <ThreeFiberTest world={this.state.world} knownBlocks={this.state.knownBlocks} turtleStates={this.state.turtleStates}/>
       </div>
     )
