@@ -50,31 +50,12 @@ class App extends Component {
           this.setState({serverMostRecentResponse: obj.message.data})
           break
         case 'INVENTORY':
-          let regex =/((?<=\[*[\d]\]\s={)(.*?)(?=,})|nil)/g
-          let inventory = obj.message.data.inventory.match(regex)
-          let trueInventory = []
-          for (let i = 0; i < inventory.length; i++) {
-            let inv = inventory[i]
-            let inventoryStructure = {
-              'name': 'nil',
-              'count':0
-            }
-            if (inv === 'nil') {
-              trueInventory.push(inventoryStructure)
-            } else {
-              let splitup = inv.split(',')
-              let name = splitup[0].split('=')[1]
-              let count = splitup[1].split('=')[1]
-              inventoryStructure['name'] = name
-              inventoryStructure['count'] = count
-              trueInventory.push(inventoryStructure)
-            }
-          }
           let turtleLocal = this.state.turtles
           if (!turtleLocal[obj.message.computerId]) {
             turtleLocal[obj.message.computerId] = {}
           }
-          turtleLocal[obj.message.computerId]['inventory'] = trueInventory
+
+          turtleLocal[obj.message.computerId]['inventory'] = obj.message.data.inventory
           turtleLocal[obj.message.computerId]['selectedSlot'] = obj.message.data.selectedSlot
           turtleLocal[obj.message.computerId]['fuel'] = obj.message.data.fuel
           this.setState({turtles: turtleLocal})
@@ -94,6 +75,9 @@ class App extends Component {
           break
         case "TURTLE_UPDATE":
           this.setState({ turtleStates: obj.message.data });
+          break
+        case "INVENTORY_ALL":
+          this.setState({ turtles: obj.message.data });
           break
         default:
           console.error('Could not parse websocket message', obj);

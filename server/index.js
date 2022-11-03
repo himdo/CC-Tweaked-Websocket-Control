@@ -7,16 +7,28 @@ var fs = require('fs')
 let serverPortPortal = 8080
 let serverPortTurtle = 8081
 let worldSavePath='world.json'
+let turtleInventoryPath='turtleInventory.json'
 let turtleConnectionsByComputerId = {}
 let turtlesByUUID = {}
 let webservers = []
 let world = {}
+let turtleInventory = {}
 
 function sendWorldData() {
   let response = {
     'type': 'WORLD_UPDATE',
     'message': {
       'data': world
+    }
+  }
+  sendToAllPortals(JSON.stringify(response))
+}
+
+function sendTurtleInventoryData() {
+  let response = {
+    'type': 'INVENTORY_ALL',
+    'message': {
+      'data': turtleInventory
     }
   }
   sendToAllPortals(JSON.stringify(response))
@@ -43,6 +55,17 @@ function loadWorld() {
   }
 }
 
+function saveTurtleInventory() {
+  fs.writeFileSync(turtleInventoryPath, JSON.stringify(turtleInventory))
+  sendTurtleInventoryData()
+}
+
+function loadTurtleInventory() {
+  if (fs.existsSync(turtleInventoryPath)) {
+    turtleInventory = JSON.parse(fs.readFileSync(turtleInventoryPath))
+  }
+}
+loadTurtleInventory()
 loadWorld()
 var serverPortal = http.createServer(function(request, response) {
   console.log((new Date()) + ' Received request for ' + request.url);
@@ -89,7 +112,7 @@ function parsePortalWSCommands(connection, message) {
         webservers.push(connection)
         let turtleStates = getTurtleStates()
         connection.sendUTF(JSON.stringify({'type':'HANDSHAKE', 'message': {'turtleStates': turtleStates}}))
-        
+        sendTurtleInventoryData()
         sendWorldData()
         break
       default:
@@ -165,6 +188,10 @@ function sendToAllPortals(data) {
   }
 }
 
+function getTurtleInventory(connection) {
+  connection.sendUTF('\\scanInventory')
+}
+
 wsServerTurtle.on('request', function(request) {
   if (!originIsAllowed(request.origin)) {
     // Make sure we only accept requests from an allowed origin
@@ -191,6 +218,8 @@ wsServerTurtle.on('request', function(request) {
               turtlesByUUID[connection.id] = {'computerID': jsonMessage['computerId'], 'state': jsonMessage['state']}
               turtleConnectionsByComputerId[jsonMessage['computerId']] = connection
             }
+            getTurtleInventory(connection)
+            sendTurtleUpdate()
             break;
           case "COMMAND_RESPONSE":
             response = {
@@ -210,6 +239,8 @@ wsServerTurtle.on('request', function(request) {
                 'data': jsonMessage['response']
               }
             }
+            turtleInventory[turtlesByUUID[connection.id]['computerID']] = jsonMessage['response']
+            saveTurtleInventory()
             sendToAllPortals(JSON.stringify(response))
             break;
           case "WORLD_UPDATE":

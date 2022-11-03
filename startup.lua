@@ -454,9 +454,17 @@ end
 function sendScanInventory()
     inventory = {}
     for i=1,16 do
-        inventory[i] = dump(turtle.getItemDetail(i))
+        details = turtle.getItemDetail(i)
+        if not details then
+            default={}
+            default['name']="nil"
+            default["count"]=0
+            table.insert(inventory, default)
+        else 
+            table.insert(inventory,  details)
+        end
     end
-    ws.send('{"type":"TURTLE_INVENTORY","response":{"inventory":"'.. dump(inventory) ..'","fuel":"'.. dump(turtle.getFuelLevel()) ..'","selectedSlot":"' .. dump(turtle.getSelectedSlot()) .. '"}}')
+    ws.send('{"type":"TURTLE_INVENTORY","response":{"inventory":'.. dump(textutils.serializeJSON(inventory)) ..',"fuel":"'.. dump(turtle.getFuelLevel()) ..'","selectedSlot":"' .. dump(turtle.getSelectedSlot()) .. '"}}')
 end
 
 function sendWorldUpdate()
