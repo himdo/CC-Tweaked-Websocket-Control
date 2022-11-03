@@ -198,16 +198,22 @@ function parseWebSocketRecieve(data)
         splitup = splitString(data)
         if splitup[1] == '\\forward' then
             ws.send('{"type":"COMMAND_RESPONSE","response":"'.. dump(forward()) ..'"}')
+            sendWorldUpdate()
         elseif splitup[1] == '\\back' then
             ws.send('{"type":"COMMAND_RESPONSE","response":"'.. dump(back()) ..'"}')
+            sendWorldUpdate()
         elseif splitup[1] == '\\up' then
             ws.send('{"type":"COMMAND_RESPONSE","response":"'.. dump(up()) ..'"}')
+            sendWorldUpdate()
         elseif splitup[1] == '\\down' then
             ws.send('{"type":"COMMAND_RESPONSE","response":"'.. dump(down()) ..'"}')
+            sendWorldUpdate()
         elseif splitup[1] == '\\turnLeft' then
             ws.send('{"type":"COMMAND_RESPONSE","response":"'.. dump(turnLeft()) ..'"}')
+            sendWorldUpdate()
         elseif splitup[1] == '\\turnRight' then
             ws.send('{"type":"COMMAND_RESPONSE","response":"'.. dump(turnRight()) ..'"}')
+            sendWorldUpdate()
         elseif splitup[1] == '\\dig' then
             -- this has a optional side param
             if splitup[2] ~= nil then
@@ -215,6 +221,8 @@ function parseWebSocketRecieve(data)
             else
                 ws.send('{"type":"COMMAND_RESPONSE","response":"'.. dump(turtle.dig()) ..'"}')
             end
+            sendWorldUpdate()
+            sendScanInventory()
         elseif splitup[1] == '\\digUp' then
             -- this has a optional side param
             if splitup[2] ~= nil then
@@ -222,6 +230,8 @@ function parseWebSocketRecieve(data)
             else
                 ws.send('{"type":"COMMAND_RESPONSE","response":"'.. dump(turtle.digUp()) ..'"}')
             end
+            sendWorldUpdate()
+            sendScanInventory()
         elseif splitup[1] == '\\digDown' then
             -- this has a optional side param
             if splitup[2] ~= nil then
@@ -229,6 +239,8 @@ function parseWebSocketRecieve(data)
             else
                 ws.send('{"type":"COMMAND_RESPONSE","response":"'.. dump(turtle.digDown()) ..'"}')
             end
+            sendWorldUpdate()
+            sendScanInventory()
         elseif splitup[1] == '\\place' then
             -- this has a optional text param
             if splitup[2] ~= nil then
@@ -236,6 +248,8 @@ function parseWebSocketRecieve(data)
             else
                 ws.send('{"type":"COMMAND_RESPONSE","response":"'.. dump(turtle.place()) ..'"}')
             end
+            sendWorldUpdate()
+            sendScanInventory()
         elseif splitup[1] == '\\placeUp' then
             -- this has a optional text param
             if splitup[2] ~= nil then
@@ -243,6 +257,8 @@ function parseWebSocketRecieve(data)
             else
                 ws.send('{"type":"COMMAND_RESPONSE","response":"'.. dump(turtle.placeUp()) ..'"}')
             end
+            sendWorldUpdate()
+            sendScanInventory()
         elseif splitup[1] == '\\placeDown' then
             -- this has a optional text param
             if splitup[2] ~= nil then
@@ -250,6 +266,8 @@ function parseWebSocketRecieve(data)
             else
                 ws.send('{"type":"COMMAND_RESPONSE","response":"'.. dump(turtle.placeDown()) ..'"}')
             end
+            sendWorldUpdate()
+            sendScanInventory()
         elseif splitup[1] == '\\drop' then
             -- this has a optional count param
             if splitup[2] ~= nil then
@@ -257,6 +275,7 @@ function parseWebSocketRecieve(data)
             else
                 ws.send('{"type":"COMMAND_RESPONSE","response":"'.. dump(turtle.drop()) ..'"}')
             end
+            sendScanInventory()
         elseif splitup[1] == '\\dropUp' then
             -- this has a optional count param
             if splitup[2] ~= nil then
@@ -264,6 +283,7 @@ function parseWebSocketRecieve(data)
             else
                 ws.send('{"type":"COMMAND_RESPONSE","response":"'.. dump(turtle.dropUp()) ..'"}')
             end
+            sendScanInventory()
         elseif splitup[1] == '\\dropDown' then
             -- this has a optional count param
             if splitup[2] ~= nil then
@@ -271,6 +291,7 @@ function parseWebSocketRecieve(data)
             else
                 ws.send('{"type":"COMMAND_RESPONSE","response":"'.. dump(turtle.dropDown()) ..'"}')
             end
+            sendScanInventory()
         elseif splitup[1] == '\\select' then
             -- this has a required slot param
             -- TODO implement param
@@ -279,6 +300,7 @@ function parseWebSocketRecieve(data)
             else
                 ws.send('{"type":"COMMAND_RESPONSE","response":"'.. dump(turtle.select(1)) ..'"}')
             end
+            sendScanInventory()
         elseif splitup[1] == '\\getItemCount' then
             -- this has a optional slot param
             if splitup[2] ~= nil then
@@ -333,6 +355,7 @@ function parseWebSocketRecieve(data)
             else
                 ws.send('{"type":"COMMAND_RESPONSE","response":"'.. dump(turtle.suck()) ..'"}')
             end
+            sendScanInventory()
         elseif splitup[1] == '\\suckUp' then
             -- this has a optional count param
             if splitup[2] ~= nil then
@@ -340,6 +363,7 @@ function parseWebSocketRecieve(data)
             else
                 ws.send('{"type":"COMMAND_RESPONSE","response":"'.. dump(turtle.suckUp()) ..'"}')
             end
+            sendScanInventory()
         elseif splitup[1] == '\\suckDown' then
             -- this has a optional count param
             if splitup[2] ~= nil then
@@ -347,6 +371,7 @@ function parseWebSocketRecieve(data)
             else
                 ws.send('{"type":"COMMAND_RESPONSE","response":"'.. dump(turtle.suckDown()) ..'"}')
             end
+            sendScanInventory()
         elseif splitup[1] == '\\getFuelLevel' then
             ws.send('{"type":"COMMAND_RESPONSE","response":"'..dump(turtle.getFuelLevel()) ..'"}')
         elseif splitup[1] == '\\refuel' then
@@ -356,6 +381,7 @@ function parseWebSocketRecieve(data)
             else
                 ws.send('{"type":"COMMAND_RESPONSE","response":"'.. dump(turtle.refuel()) ..'"}')
             end
+            sendScanInventory()
         elseif splitup[1] == '\\compareTo' then
             -- this has a required slot param
             if splitup[2] ~= nil then
@@ -372,14 +398,17 @@ function parseWebSocketRecieve(data)
             else
                 ws.send('{"type":"COMMAND_RESPONSE","response":"'.. dump(turtle.transferTo(1)) ..'"}')
             end
+            sendScanInventory()
         elseif splitup[1] == '\\getSelectedSlot' then
             ws.send('{"type":"COMMAND_RESPONSE","response":"'.. dump(turtle.getSelectedSlot()) ..'"}')
         elseif splitup[1] == '\\getFuelLimit' then
             ws.send('{"type":"COMMAND_RESPONSE","response":"'.. dump(turtle.getFuelLimit()) ..'"}')
         elseif splitup[1] == '\\equipLeft' then
             ws.send('{"type":"COMMAND_RESPONSE","response":"'.. dump(turtle.equipLeft()) ..'"}')
+            sendScanInventory()
         elseif splitup[1] == '\\equipRight' then
             ws.send('{"type":"COMMAND_RESPONSE","response":"'.. dump(turtle.equipRight()) ..'"}')
+            sendScanInventory()
         elseif splitup[1] == '\\inspect' then
             _, data = turtle.inspect()
             ws.send('{"type":"COMMAND_RESPONSE","response":"'.. dump(data["name"]) ..'"}')
@@ -406,16 +435,13 @@ function parseWebSocketRecieve(data)
             else
                 ws.send('{"type":"COMMAND_RESPONSE","response":"'.. dump(turtle.craft()) ..'"}')
             end
+            sendScanInventory()
         elseif splitup[1] == '\\scanInventory' then
-            inventory = {}
-            for i=1,16 do
-                inventory[i] = dump(turtle.getItemDetail(i))
-            end
-            ws.send('{"type":"TURTLE_INVENTORY","response":{"inventory":"'.. dump(inventory) ..'","fuel":"'.. dump(turtle.getFuelLevel()) ..'"}}')
+            sendScanInventory()
         elseif splitup[1] == '\\scanVisible' then
             nameDown, nameFront, nameUp = getVisisbleBlocks()
+            sendWorldUpdate()
             ws.send('{"type":"COMMAND_RESPONSE","response":{"down":"'.. dump(nameDown) ..'", "front":"'.. dump(nameFront) ..'","up":"'.. dump(nameUp) ..'","heading":'..dump(state['heading'])..',"gps":'..textutils.serializeJSON(state['gps'])..'}}')
-            ws.send('{"type":"WORLD_UPDATE","response":{"down":"'.. dump(nameDown) ..'", "front":"'.. dump(nameFront) ..'","up":"'.. dump(nameUp) ..'","heading":'..dump(state['heading'])..',"gps":'..textutils.serializeJSON(state['gps'])..'}}')
         elseif splitup[1] == '\\printState' then
             ws.send('{"type":"COMMAND_RESPONSE","response":'.. dump(textutils.serializeJSON(state)) ..'}')
         else
@@ -423,6 +449,19 @@ function parseWebSocketRecieve(data)
         end
         print(textutils.serializeJSON(state))
     end
+end
+
+function sendScanInventory()
+    inventory = {}
+    for i=1,16 do
+        inventory[i] = dump(turtle.getItemDetail(i))
+    end
+    ws.send('{"type":"TURTLE_INVENTORY","response":{"inventory":"'.. dump(inventory) ..'","fuel":"'.. dump(turtle.getFuelLevel()) ..'","selectedSlot":"' .. dump(turtle.getSelectedSlot()) .. '"}}')
+end
+
+function sendWorldUpdate()
+    nameDown, nameFront, nameUp = getVisisbleBlocks()
+    ws.send('{"type":"WORLD_UPDATE","response":{"down":"'.. dump(nameDown) ..'", "front":"'.. dump(nameFront) ..'","up":"'.. dump(nameUp) ..'","heading":'..dump(state['heading'])..',"gps":'..textutils.serializeJSON(state['gps'])..'}}')
 end
 
 function main()
@@ -446,7 +485,9 @@ function main()
             connectToWebsocket()
         elseif event == "websocket_message" then
             print("Recieved: ")
-            parseWebSocketRecieve(e[3])
+            if pcall(parseWebSocketRecieve, e[3]) == false then
+                ws.send('{"type":"COMMAND_RESPONSE","response":"COMMAND ERROR"}')
+            end
             print(e[3])
         elseif event == "websocket_closed" then
             printError("Server closed.")
