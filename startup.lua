@@ -139,9 +139,9 @@ function forward()
         elseif state['heading'] == 2 then
             state['gps']['x'] = state['gps']['x'] + 1
         elseif state['heading'] == 3 then
-            state['gps']['x'] = state['gps']['x'] - 1
-        elseif state['heading'] == 4 then
             state['gps']['z'] = state['gps']['z'] + 1
+        elseif state['heading'] == 4 then
+            state['gps']['x'] = state['gps']['x'] - 1
         end
         saveState()
     end
@@ -156,9 +156,9 @@ function back()
         elseif state['heading'] == 2 then
             state['gps']['x'] = state['gps']['x'] - 1
         elseif state['heading'] == 3 then
-            state['gps']['x'] = state['gps']['x'] + 1
-        elseif state['heading'] == 4 then
             state['gps']['z'] = state['gps']['z'] - 1
+        elseif state['heading'] == 4 then
+            state['gps']['x'] = state['gps']['x'] + 1
         end
         saveState()
     end

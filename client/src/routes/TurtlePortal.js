@@ -26,16 +26,16 @@ function TurtlePortal(props) {
     return (
       <React.Fragment>
         <Grid item xs={3}>
-          <div style={{fontWeight: (connectedComputer && (row*4+1 === parseInt(connectedComputer.selectedSlot)))? 'bold':'normal' }}>{(typeof(turtleInventory[(row*4)]) === 'undefined' || turtleInventory[(row*4)]?.name === 'nil')?'undefined': turtleInventory[(row*4)]['name'].toString() + ' x ' + turtleInventory[(row*4)]['count'].toString()}</div>
+          <span style={{fontWeight: (connectedComputer && (row*4+1 === parseInt(connectedComputer.selectedSlot)))? 'bold':'normal' }}>{(typeof(turtleInventory[(row*4)]) === 'undefined' || turtleInventory[(row*4)]?.name === 'nil')?'undefined': turtleInventory[(row*4)]['name'].toString() + ' x ' + turtleInventory[(row*4)]['count'].toString()}</span>
         </Grid>
         <Grid item xs={3}>
-          <div style={{fontWeight: (connectedComputer && (row*4+2 === parseInt(connectedComputer.selectedSlot)))? 'bold':'normal' }}>{(typeof(turtleInventory[(row*4)+1]) === 'undefined' || turtleInventory[(row*4)+1]?.name === 'nil')?'undefined': turtleInventory[(row*4)+1]['name'].toString() + ' x ' + turtleInventory[(row*4)+1]['count'].toString()}</div>
+          <span style={{fontWeight: (connectedComputer && (row*4+2 === parseInt(connectedComputer.selectedSlot)))? 'bold':'normal' }}>{(typeof(turtleInventory[(row*4)+1]) === 'undefined' || turtleInventory[(row*4)+1]?.name === 'nil')?'undefined': turtleInventory[(row*4)+1]['name'].toString() + ' x ' + turtleInventory[(row*4)+1]['count'].toString()}</span>
         </Grid>
         <Grid item xs={3}>
-          <div style={{fontWeight: (connectedComputer && (row*4+3 === parseInt(connectedComputer.selectedSlot)))? 'bold':'normal' }}>{(typeof(turtleInventory[(row*4)+2]) === 'undefined' || turtleInventory[(row*4)+2]?.name === 'nil')?'undefined': turtleInventory[(row*4)+2]['name'].toString() + ' x ' + turtleInventory[(row*4)+2]['count'].toString()}</div>
+          <span style={{fontWeight: (connectedComputer && (row*4+3 === parseInt(connectedComputer.selectedSlot)))? 'bold':'normal' }}>{(typeof(turtleInventory[(row*4)+2]) === 'undefined' || turtleInventory[(row*4)+2]?.name === 'nil')?'undefined': turtleInventory[(row*4)+2]['name'].toString() + ' x ' + turtleInventory[(row*4)+2]['count'].toString()}</span>
         </Grid>
         <Grid item xs={3}>
-          <div style={{fontWeight: (connectedComputer && (row*4+4 === parseInt(connectedComputer.selectedSlot)))? 'bold':'normal' }}>{(typeof(turtleInventory[(row*4)+3]) === 'undefined' || turtleInventory[(row*4)+3]?.name === 'nil')?'undefined': turtleInventory[(row*4)+3]['name'].toString() + ' x ' + turtleInventory[(row*4)+3]['count'].toString()}</div>
+          <span style={{fontWeight: (connectedComputer && (row*4+4 === parseInt(connectedComputer.selectedSlot)))? 'bold':'normal' }}>{(typeof(turtleInventory[(row*4)+3]) === 'undefined' || turtleInventory[(row*4)+3]?.name === 'nil')?'undefined': turtleInventory[(row*4)+3]['name'].toString() + ' x ' + turtleInventory[(row*4)+3]['count'].toString()}</span>
         </Grid>
       </React.Fragment>
     )
@@ -46,17 +46,17 @@ function TurtlePortal(props) {
       <div>
         <h1>Inventory: </h1>
         <Box sx={{ flexGrow: 1 }}>
-          <Grid container spacing={1}>
-            <Grid container item spacing={4}>
+          <Grid container spacing={1} style={{justifyContent: 'center'}}>
+            <Grid item spacing={4}>
               {turtleRow(0)}
             </Grid>
-            <Grid container item spacing={4}>
+            <Grid item spacing={4}>
               {turtleRow(1)}
             </Grid>
-            <Grid container item spacing={4}>
+            <Grid item spacing={4}>
               {turtleRow(2)}
             </Grid>
-            <Grid container item spacing={4}>
+            <Grid item spacing={4}>
               {turtleRow(3)}
             </Grid>
           </Grid>
@@ -70,9 +70,9 @@ function TurtlePortal(props) {
       setSelectedSlot(connectedComputer.selectedSlot)
     }
     return (
-      <>
+      <span style={{justifyContent: 'center'}}>
       Fuel: {(connectedComputer?.fuel)? connectedComputer.fuel: 'N/A'}
-      </>
+      </span>
     )
   }
   function handleChange (event) {
@@ -118,6 +118,7 @@ function TurtlePortal(props) {
             sendRefreshMessage()
           }}>Refresh Inventory</Button>
         {intitalizeTurtleInventoryHTML()}
+        <br/>
         {intializeTurtleFuelCount()}
       </Box>
     </>

@@ -6,6 +6,7 @@ import { AxesHelper, Euler, MeshLambertMaterial, Quaternion, Vector3 } from 'thr
 import { GUI } from 'three/addons/libs/lil-gui.module.min.js';
 import { Text } from '@react-three/drei';
 import "./ReactThreeCanvas.css"
+import { Tooltip } from '@mui/material';
 
 function createNewControls(camera, gl, position) {
   let controls = new OrbitControls(camera, gl.domElement);
@@ -46,6 +47,7 @@ function Box(props) {
     <mesh
       {...props}
       ref={mesh}
+      onPointerDown={console.log}
       // scale={active ? 1.5 : 1}
       onClick={(event) => {onClickBox({name: props.name, position: props.position, controls: props.controls, setControls: props.setControls}), setActive(!active)}}
       onPointerOver={(event) => setHover(true)}
@@ -106,7 +108,6 @@ function useInterpolate(property, position, rotation) {
 	return ref;
 }
 
-
 function Model({ url, position, rotation, name }) {
 	const GLTFLoader = require('three/examples/jsm/loaders/GLTFLoader').GLTFLoader;
 	const obj = useLoader(GLTFLoader, url);
@@ -138,6 +139,8 @@ class ThreeFiber extends Component {
       controls: undefined,
       settings: {},
       gui: undefined,
+      mousePosition: {x:0, y:0},
+      toolTipText: "",
       props: props
     }
   }
@@ -208,60 +211,126 @@ class ThreeFiber extends Component {
     this.setState({controls: args})
   }
 
+  _onMouseMove(e) {
+    this.setState({ mousePosition: {x: e.clientX, y: e.clientY} });
+  }
+
+
+  sendMessage(commandText) {
+    let socketData = {
+      'type': commandText,
+      'turtleId': typeof(this.props.connectedTurtle) === 'undefined'?0:this.props.connectedTurtle
+    }
+    this.props.socket.send(JSON.stringify(socketData))
+  }
+
+  _onKeyDown(e) {
+    console.log(e)
+    switch (e.key) {
+      case "w":
+        this.sendMessage('\\forward')
+        break;
+      case " ":
+        this.sendMessage('\\up')
+        break;
+      case "Control":
+        this.sendMessage('\\down')
+        break;
+      case "s":
+        this.sendMessage('\\back')
+        break;
+      case "a":
+        this.sendMessage('\\turnLeft')
+        break;
+      case "d":
+        this.sendMessage('\\turnRight')
+        break;
+      case "r":
+        this.sendMessage('\\digUp')
+        break;
+      case "f":
+        this.sendMessage('\\dig')
+        break;
+      case "v":
+        this.sendMessage('\\digDown')
+        break;
+    
+      default:
+        break;
+    }
+  }
+
   render() {
-
     return (
-      <div>
-        <Canvas>
-          <CameraController controls={this.state.controls} setControls={this.updateStateControls.bind(this)}/>
-          <ambientLight />
-          <pointLight position={[10, 10, 10]} />
-          
-          {Object.keys(this.props.world).map((item, index) => {
-            let positions = item.split('_')
-            let name = this.props.world[item]['blockName']
-            let opacity = undefined
-            if (this.state.settings && Object.keys(this.state.settings).length !== 0 && !this.state.settings[name]) {
-              opacity = 0
-            }
-
-            return <Box key={index} controls={this.state.controls} setControls={this.updateStateControls.bind(this)} position={[positions[2], positions[1], positions[0]]} name={name} color={Color({
-              h: hashCode(name) % 360,
-              s: 60,
-              l: 40,
-            }).toString()}
-            transparent={true}
-            opacity={opacity}/>
-          })}
-          
-          <Compass controls={this.state.controls}/>
-          {Object.keys(this.props.turtleStates).map((item, index) => {
-            let turtleState = this.props.turtleStates[item]
-            let position = turtleState['gps']
-            let heading = 0
-            switch (turtleState['heading']) {
-              case 1:
-                heading = 1
-                break;
-              case 2:
-                heading = 4
-                break;
-              case 3:
-                heading = 3
-                break;
-              case 4:
-                heading = 2
-                break;
+      <div onKeyUp={this._onKeyDown.bind(this)} tabIndex="0">
+        <Tooltip title={this.state.toolTipText} 
+          PopperProps={{
+          anchorEl: {
+            clientHeight: 0,
+            clientWidth: 0,
+            getBoundingClientRect: () => ({
+              top: this.state.mousePosition.y - 100,
+              left: this.state.mousePosition.x,
+              right: this.state.mousePosition.x,
+              bottom: this.state.mousePosition.y - 100,
+              width: 0,
+              height: 0,
+            }),
+          }
+        }}
+        onMouseMove={this._onMouseMove.bind(this)}
+        >
+          <Canvas>
+            <CameraController controls={this.state.controls} setControls={this.updateStateControls.bind(this)}/>
+            <ambientLight />
+            <pointLight position={[10, 10, 10]} />
             
-              default:
-                break;
-            }
+            {Object.keys(this.props.world).map((item, index) => {
+              let positions = item.split('_')
+              let name = this.props.world[item]['blockName']
+              let opacity = undefined
+              if (this.state.settings && Object.keys(this.state.settings).length !== 0 && !this.state.settings[name]) {
+                opacity = 0
+              }
 
-            return(
-              <Model key={index} name={'TODO'} url="/turtle.glb" position={[position.z, position.y, position.x]} rotation={[0, -(heading) * Math.PI / 2, 0]} />
-            )
-          })}
-        </Canvas>
+              return <Box key={index} controls={this.state.controls} setControls={this.updateStateControls.bind(this)} position={[positions[2], positions[1], positions[0]]} name={name} color={Color({
+                h: hashCode(name) % 360,
+                s: 60,
+                l: 40,
+              }).toString()}
+              transparent={true}
+              opacity={opacity}/>
+            })}
+            
+            <Compass controls={this.state.controls}/>
+            {Object.keys(this.props.turtleStates).map((item, index) => {
+              let turtleState = this.props.turtleStates[item]
+              let position = turtleState['gps']
+              let heading = 0
+              switch (turtleState['heading']) {
+                case 1:
+                  heading = 1
+                  break;
+                case 2:
+                  heading = 4
+                  break;
+                case 3:
+                  heading = 3
+                  break;
+                case 4:
+                  heading = 2
+                  break;
+              
+                default:
+                  break;
+              }
+
+              return(
+                <Model key={index} name={'TODO'} url="/turtle.glb" position={[position.z, position.y, position.x]} rotation={[0, -(heading) * Math.PI / 2, 0]} />
+              )
+            })}
+          </Canvas>
+        </Tooltip>
       </div>
     )
   }
