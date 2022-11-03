@@ -1,8 +1,8 @@
 import React, { Component, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react'
-import { Canvas, useFrame, useThree } from '@react-three/fiber'
+import { Canvas, useFrame, useLoader, useThree } from '@react-three/fiber'
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls';
 import Color from 'color';
-import { AxesHelper, MeshLambertMaterial, Vector3 } from 'three';
+import { AxesHelper, Euler, MeshLambertMaterial, Quaternion, Vector3 } from 'three';
 import { GUI } from 'three/addons/libs/lil-gui.module.min.js';
 import { Text } from '@react-three/drei';
 
@@ -82,6 +82,47 @@ function Compass(props) {
       </Text>
     </>
   )
+}
+
+function useInterpolate(property, position, rotation) {
+	const ref = useRef(null);
+	useFrame(() => {
+		if (ref.current) {
+			const current = ref.current[property];
+			const newPos = current.lerp(new Vector3(position[0], position[1], position[2]), 0.3);
+			ref.current[property].x = newPos.x;
+			ref.current[property].y = newPos.y;
+			ref.current[property].z = newPos.z;
+			if (rotation) {
+				const currentR = ref.current.quaternion;
+				const targetR = new Quaternion();
+				targetR.setFromEuler(new Euler(rotation[0], rotation[1], rotation[2]));
+				const newRot = currentR.slerp(targetR, 0.3);
+				ref.current.rotation.setFromQuaternion(newRot);
+			}
+		}
+	});
+	return ref;
+}
+
+
+function Model({ url, position, rotation, name }) {
+	const GLTFLoader = require('three/examples/jsm/loaders/GLTFLoader').GLTFLoader;
+	const obj = useLoader(GLTFLoader, url);
+	const ref = useInterpolate('position', position, rotation);
+	return (
+		<>
+			<mesh
+				visible={false}
+				position={position}
+				name={name}
+				scale={[1, 1, 1]}
+			>
+				<boxBufferGeometry args={[1, 1, 1]} />
+			</mesh>
+			<primitive ref={ref} object={obj.scene} />
+		</>
+	);
 }
 
 export const hashCode = function (s) {
@@ -188,16 +229,13 @@ class ThreeFiber extends Component {
           })}
           
           <Compass controls={this.state.controls}/>
-          
-          {/* <Text scale={[10, 10, 10]}>
-            South
-          </Text>
-          <Text scale={[10, 10, 10]}>
-            East
-          </Text>
-          <Text scale={[10, 10, 10]}>
-            West
-          </Text> */}
+          {Object.keys(this.props.turtleStates).map((item, index) => {
+            let turtleState = this.props.turtleStates[item]
+            let position = turtleState['gps']
+            return(
+              <Model key={index} name={'TODO'} url="/turtle.glb" position={[position.z, position.y, position.x]} rotation={[0, -(turtleState['heading']) * Math.PI / 2, 0]} />
+            )
+          })}
         </Canvas>
       </div>
     )

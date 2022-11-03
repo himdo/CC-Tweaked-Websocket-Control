@@ -170,7 +170,7 @@ class App extends Component {
         }
 
         {/* <Home world={this.state.world}/> */}
-        <ThreeFiberTest world={this.state.world} knownBlocks={this.state.knownBlocks}/>
+        <ThreeFiberTest world={this.state.world} knownBlocks={this.state.knownBlocks} turtleStates={this.state.turtleStates}/>
       </div>
     )
   };
