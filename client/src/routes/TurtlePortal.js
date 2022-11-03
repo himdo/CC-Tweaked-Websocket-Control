@@ -11,24 +11,31 @@ function TurtlePortal(props) {
   let turtleInventorySize = 16
   let turtleInventory;
   let connectedComputer = turtles[connectedTurtle];
+  const [selectedSlot, setSelectedSlot] = useState(1);
+
   (typeof(connectedComputer) !== 'undefined')? turtleInventory = connectedComputer['inventory']: turtleInventory = new Array(turtleInventorySize).fill(undefined);
   
   const [commandText, setCommandText] = useState('');
 
   function turtleRow(row) {
+    let selectedSlot = 0
+    if (connectedComputer?.selectedSlot) {
+      selectedSlot = connectedComputer.selectedSlot
+    }
+    
     return (
       <React.Fragment>
         <Grid item xs={3}>
-          <div>{(typeof(turtleInventory[(row*4)]) === 'undefined' || turtleInventory[(row*4)]?.name === 'nil')?'undefined': turtleInventory[(row*4)]['name'].toString() + ' x ' + turtleInventory[(row*4)]['count'].toString()}</div>
+          <div style={{fontWeight: (connectedComputer && (row*4+1 === parseInt(connectedComputer.selectedSlot)))? 'bold':'normal' }}>{(typeof(turtleInventory[(row*4)]) === 'undefined' || turtleInventory[(row*4)]?.name === 'nil')?'undefined': turtleInventory[(row*4)]['name'].toString() + ' x ' + turtleInventory[(row*4)]['count'].toString()}</div>
         </Grid>
         <Grid item xs={3}>
-          <div>{(typeof(turtleInventory[(row*4)+1]) === 'undefined' || turtleInventory[(row*4)+1]?.name === 'nil')?'undefined': turtleInventory[(row*4)+1]['name'].toString() + ' x ' + turtleInventory[(row*4)+1]['count'].toString()}</div>
+          <div style={{fontWeight: (connectedComputer && (row*4+2 === parseInt(connectedComputer.selectedSlot)))? 'bold':'normal' }}>{(typeof(turtleInventory[(row*4)+1]) === 'undefined' || turtleInventory[(row*4)+1]?.name === 'nil')?'undefined': turtleInventory[(row*4)+1]['name'].toString() + ' x ' + turtleInventory[(row*4)+1]['count'].toString()}</div>
         </Grid>
         <Grid item xs={3}>
-          <div>{(typeof(turtleInventory[(row*4)+2]) === 'undefined' || turtleInventory[(row*4)+2]?.name === 'nil')?'undefined': turtleInventory[(row*4)+2]['name'].toString() + ' x ' + turtleInventory[(row*4)+2]['count'].toString()}</div>
+          <div style={{fontWeight: (connectedComputer && (row*4+3 === parseInt(connectedComputer.selectedSlot)))? 'bold':'normal' }}>{(typeof(turtleInventory[(row*4)+2]) === 'undefined' || turtleInventory[(row*4)+2]?.name === 'nil')?'undefined': turtleInventory[(row*4)+2]['name'].toString() + ' x ' + turtleInventory[(row*4)+2]['count'].toString()}</div>
         </Grid>
         <Grid item xs={3}>
-          <div>{(typeof(turtleInventory[(row*4)+3]) === 'undefined' || turtleInventory[(row*4)+3]?.name === 'nil')?'undefined': turtleInventory[(row*4)+3]['name'].toString() + ' x ' + turtleInventory[(row*4)+3]['count'].toString()}</div>
+          <div style={{fontWeight: (connectedComputer && (row*4+4 === parseInt(connectedComputer.selectedSlot)))? 'bold':'normal' }}>{(typeof(turtleInventory[(row*4)+3]) === 'undefined' || turtleInventory[(row*4)+3]?.name === 'nil')?'undefined': turtleInventory[(row*4)+3]['name'].toString() + ' x ' + turtleInventory[(row*4)+3]['count'].toString()}</div>
         </Grid>
       </React.Fragment>
     )
@@ -60,6 +67,9 @@ function TurtlePortal(props) {
 
   function intializeTurtleFuelCount() {
     console.log(connectedComputer)
+    if (connectedComputer && selectedSlot !== connectedComputer.selectedSlot) {
+      setSelectedSlot(connectedComputer.selectedSlot)
+    }
     return (
       <>
       Fuel: {(connectedComputer?.fuel)? connectedComputer.fuel: 'N/A'}

@@ -76,6 +76,7 @@ class App extends Component {
             turtleLocal[obj.message.computerId] = {}
           }
           turtleLocal[obj.message.computerId]['inventory'] = trueInventory
+          turtleLocal[obj.message.computerId]['selectedSlot'] = obj.message.data.selectedSlot
           turtleLocal[obj.message.computerId]['fuel'] = obj.message.data.fuel
           this.setState({turtles: turtleLocal})
           break
