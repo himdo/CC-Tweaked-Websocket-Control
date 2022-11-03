@@ -17,48 +17,19 @@ function TurtlePortal(props) {
   
   const [commandText, setCommandText] = useState('');
 
-  function turtleRow(row) {
-    let selectedSlot = 0
-    if (connectedComputer?.selectedSlot) {
-      selectedSlot = connectedComputer.selectedSlot
-    }
-    
-    return (
-      <React.Fragment>
-        <Grid item xs={3}>
-          <span style={{fontWeight: (connectedComputer && (row*4+1 === parseInt(connectedComputer.selectedSlot)))? 'bold':'normal' }}>{(typeof(turtleInventory[(row*4)]) === 'undefined' || turtleInventory[(row*4)]?.name === 'nil')?'undefined': turtleInventory[(row*4)]['name'].toString() + ' x ' + turtleInventory[(row*4)]['count'].toString()}</span>
-        </Grid>
-        <Grid item xs={3}>
-          <span style={{fontWeight: (connectedComputer && (row*4+2 === parseInt(connectedComputer.selectedSlot)))? 'bold':'normal' }}>{(typeof(turtleInventory[(row*4)+1]) === 'undefined' || turtleInventory[(row*4)+1]?.name === 'nil')?'undefined': turtleInventory[(row*4)+1]['name'].toString() + ' x ' + turtleInventory[(row*4)+1]['count'].toString()}</span>
-        </Grid>
-        <Grid item xs={3}>
-          <span style={{fontWeight: (connectedComputer && (row*4+3 === parseInt(connectedComputer.selectedSlot)))? 'bold':'normal' }}>{(typeof(turtleInventory[(row*4)+2]) === 'undefined' || turtleInventory[(row*4)+2]?.name === 'nil')?'undefined': turtleInventory[(row*4)+2]['name'].toString() + ' x ' + turtleInventory[(row*4)+2]['count'].toString()}</span>
-        </Grid>
-        <Grid item xs={3}>
-          <span style={{fontWeight: (connectedComputer && (row*4+4 === parseInt(connectedComputer.selectedSlot)))? 'bold':'normal' }}>{(typeof(turtleInventory[(row*4)+3]) === 'undefined' || turtleInventory[(row*4)+3]?.name === 'nil')?'undefined': turtleInventory[(row*4)+3]['name'].toString() + ' x ' + turtleInventory[(row*4)+3]['count'].toString()}</span>
-        </Grid>
-      </React.Fragment>
-    )
-  }
-
   function intitalizeTurtleInventoryHTML() {
     return (
       <div>
         <h1>Inventory: </h1>
         <Box sx={{ flexGrow: 1 }}>
-          <Grid container spacing={1} style={{justifyContent: 'center'}}>
-            <Grid item spacing={4}>
-              {turtleRow(0)}
-            </Grid>
-            <Grid item spacing={4}>
-              {turtleRow(1)}
-            </Grid>
-            <Grid item spacing={4}>
-              {turtleRow(2)}
-            </Grid>
-            <Grid item spacing={4}>
-              {turtleRow(3)}
-            </Grid>
+          <Grid container spacing={2} style={{justifyContent: 'center'}}>
+            {turtleInventory.map((item, index) => {
+              return (
+                <Grid item xs={3} key={index} style={{border:'solid', backgroundColor: (connectedComputer && (index+1 === parseInt(connectedComputer.selectedSlot)))? 'yellow':'inherit'}}>
+                  <span>{(typeof(item) === 'undefined' || item?.name === 'nil')?'undefined': item['name'].toString() + ' x ' + item['count'].toString()}</span>
+                </Grid>
+              )
+            })}
           </Grid>
         </Box>
       </div>
@@ -108,7 +79,7 @@ function TurtlePortal(props) {
         >Submit</Button>
         
         <TextareaAutosize
-          InputProps={{
+          inputprops={{
             readOnly: true,
           }}
           style={{ width: '90%' }}
