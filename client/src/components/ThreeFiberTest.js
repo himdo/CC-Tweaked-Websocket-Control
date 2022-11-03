@@ -232,8 +232,27 @@ class ThreeFiber extends Component {
           {Object.keys(this.props.turtleStates).map((item, index) => {
             let turtleState = this.props.turtleStates[item]
             let position = turtleState['gps']
+            let heading = 0
+            switch (turtleState['heading']) {
+              case 1:
+                heading = 1
+                break;
+              case 2:
+                heading = 4
+                break;
+              case 3:
+                heading = 3
+                break;
+              case 4:
+                heading = 2
+                break;
+            
+              default:
+                break;
+            }
+
             return(
-              <Model key={index} name={'TODO'} url="/turtle.glb" position={[position.z, position.y, position.x]} rotation={[0, -(turtleState['heading']) * Math.PI / 2, 0]} />
+              <Model key={index} name={'TODO'} url="/turtle.glb" position={[position.z, position.y, position.x]} rotation={[0, -(heading) * Math.PI / 2, 0]} />
             )
           })}
         </Canvas>

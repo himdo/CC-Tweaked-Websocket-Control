@@ -205,6 +205,10 @@ wsServerTurtle.on('request', function(request) {
             let blockNameDown=jsonMessage['response']['down']=='nil'?'minecraft:air':jsonMessage['response']['down']
             let blockNameFront=jsonMessage['response']['front']=='nil'?'minecraft:air':jsonMessage['response']['front']
             let blockNameUp=jsonMessage['response']['up']=='nil'?'minecraft:air':jsonMessage['response']['up']
+            console.log(turtlesByUUID[connection.id])
+
+            turtlesByUUID[connection.id]['state'] = {'gps': jsonMessage['response']['gps'], 'heading': jsonMessage['response']['heading']}
+            console.log(turtlesByUUID[connection.id])
             // CurrentBlock
             world[xPos+'_'+yPos+'_'+zPos] = {'blockName': 'minecraft:air'}
             // -- heading == 0 -- Not Set

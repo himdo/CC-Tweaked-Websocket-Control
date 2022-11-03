@@ -66,7 +66,6 @@ function TurtlePortal(props) {
   }
 
   function intializeTurtleFuelCount() {
-    console.log(connectedComputer)
     if (connectedComputer && selectedSlot !== connectedComputer.selectedSlot) {
       setSelectedSlot(connectedComputer.selectedSlot)
     }
