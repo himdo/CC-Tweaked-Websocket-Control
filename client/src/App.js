@@ -119,7 +119,7 @@ class App extends Component {
         {/* ======================================================== */}
         {
           typeof (this.state.connectedTurtle) != 'undefined'  && 
-          <div><Button onClick={() => {
+          <div style={{textAlign: 'left'}}><Button onClick={() => {
             this.connectToTurtle(undefined)
             }}>Back</Button>
           </div>

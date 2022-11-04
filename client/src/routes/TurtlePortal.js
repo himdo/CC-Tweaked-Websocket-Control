@@ -189,17 +189,28 @@ function TurtlePortal(props) {
     socket.send(JSON.stringify(socketData))
   }
 
+  function sendCraftMessage() {
+    let socketData = {
+      'type': '\\craft',
+      'turtleId': connectedTurtle
+    }
+    socket.send(JSON.stringify(socketData))
+  }
+
   return (
     <>
       <Box sx={{ minHeight: '100vh' }}>
         <TextareaAutosize
           value={commandText}
-          onChange={handleChange}/>
+          onChange={handleChange}
+          style={{width: '90%' }}/>
+        <br/>
         <Button
           onClick={() => {
             sendMessage()
           }}
         >Submit</Button>
+        <br/>
         
         <TextareaAutosize
           inputprops={{
@@ -208,9 +219,13 @@ function TurtlePortal(props) {
           style={{ width: '90%' }}
           label="Read Only"
           value={serverMostRecentResponse}/>
+        <br/>
         <Button onClick={() => {
             sendRefreshMessage()
           }}>Refresh Inventory</Button>
+        <Button onClick={() => {
+          sendCraftMessage()
+        }}>Craft</Button>
         {intitalizeTurtleInventoryHTML()}
         <br/>
         {intializeTurtleFuelCount()}

@@ -144,12 +144,22 @@ class ThreeFiber extends Component {
       props: props
     }
   }
+  
+  findFolder(parent,  text) {
+    let childFolders = parent.folders
+    for (let i = 0; i < childFolders.length; i++) {
+      if (childFolders[i]._title === text) {
+        return childFolders[i]
+      }
+    }
+    return null
+  }
 
   setup() {
     let newGui = this.state.gui
     if (typeof(newGui) !== 'undefined') {
       this.state.gui.destroy()
-      newGui = new GUI({width: 310})
+      newGui = new GUI({width: 310, title: 'Map Settings'})
       this.setState({gui: newGui})
     } else {
       newGui = new GUI({width: 310})
@@ -158,17 +168,38 @@ class ThreeFiber extends Component {
     }
     const panel = newGui
 
-    let folder1
-    if (panel.children.length === 0) {
-      folder1 = panel.addFolder( 'Visibility' );
-    } else {
-      folder1 = panel.children[0]
+
+    let folderTurtleControlsText = 'Turtle Controls'
+    let folderTurtleControls = this.findFolder(panel, folderTurtleControlsText)
+    if (folderTurtleControls === null) {
+      folderTurtleControls = panel.addFolder( folderTurtleControlsText );
     }
+    let turtleControls = {
+      "forward":"W",
+      "up":"Space",
+      "down":"Control",
+      "back":"S",
+      "turnLeft":"A",
+      "turnRight":"D",
+      "digUp":"R",
+      "dig":"F",
+      "digDown":"B",
+    }
+    for (let i = 0; i < Object.keys(turtleControls).length; i++) {
+      folderTurtleControls.add( turtleControls, Object.keys(turtleControls)[i] );
+    }
+
+    let folderBlockVisibilityText = 'Block Visibility'
+    let folderBlockVisibility = this.findFolder(panel, folderBlockVisibilityText)
+    if (folderBlockVisibility === null) {
+      folderBlockVisibility = panel.addFolder( folderBlockVisibilityText );
+    }
+
     let temp = {}
     Object.keys(this.props.world).map((item, index) => {
         let name = this.props.world[item]['blockName']
 
-        let children = folder1.children
+        let children = folderBlockVisibility.children
         let foundDuplicate = false
         for (let childIndex = 0; childIndex < children.length; childIndex++) {
           let child = children[childIndex]
@@ -179,11 +210,12 @@ class ThreeFiber extends Component {
         }
         if (!foundDuplicate) {
           temp[name] = true
-          folder1.add( temp, name );
+          folderBlockVisibility.add( temp, name );
         }
     })
 
-    folder1.open();
+    folderBlockVisibility.open();
+    folderTurtleControls.open();
     this.setState({settings: temp})
 
     panel.onChange( event => {
