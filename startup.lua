@@ -444,6 +444,37 @@ function parseWebSocketRecieve(data)
             ws.send('{"type":"COMMAND_RESPONSE","response":{"down":"'.. dump(nameDown) ..'", "front":"'.. dump(nameFront) ..'","up":"'.. dump(nameUp) ..'","heading":'..dump(state['heading'])..',"gps":'..textutils.serializeJSON(state['gps'])..'}}')
         elseif splitup[1] == '\\printState' then
             ws.send('{"type":"COMMAND_RESPONSE","response":'.. dump(textutils.serializeJSON(state)) ..'}')
+        elseif splitup[1] == '\\selectAndDrop' then
+            selectedSlot = turtle.getSelectedSlot()
+            turtle.select(tonumber(splitup[2]))
+            turtle.drop()
+            turtle.select(selectedSlot)
+            ws.send('{"type":"COMMAND_RESPONSE","response":"true"}')
+            sendScanInventory()
+        elseif splitup[1] == '\\equipLeftTo' then
+            selectedSlot = turtle.getSelectedSlot()
+            turtle.select(tonumber(splitup[2]))
+            status = turtle.equipLeft()
+            turtle.select(selectedSlot)
+            
+            ws.send('{"type":"COMMAND_RESPONSE","response":"'.. dump(status) ..'"}')
+            sendScanInventory()
+        elseif splitup[1] == '\\equipRightTo' then
+            selectedSlot = turtle.getSelectedSlot()
+            turtle.select(tonumber(splitup[2]))
+            status = turtle.equipRight()
+            turtle.select(selectedSlot)
+            
+            ws.send('{"type":"COMMAND_RESPONSE","response":"'.. dump(status) ..'"}')
+            sendScanInventory()
+        elseif splitup[1] == '\\refuelAt' then
+            selectedSlot = turtle.getSelectedSlot()
+            turtle.select(tonumber(splitup[2]))
+            status = turtle.refuel()
+            turtle.select(selectedSlot)
+            
+            ws.send('{"type":"COMMAND_RESPONSE","response":"'.. dump(status) ..'"}')
+            sendScanInventory()
         else
             ws.send('{"type":"COMMAND_RESPONSE","response":"UNKNOWN COMMAND"}')
         end
