@@ -451,6 +451,20 @@ function parseWebSocketRecieve(data)
             turtle.select(selectedSlot)
             ws.send('{"type":"COMMAND_RESPONSE","response":"true"}')
             sendScanInventory()
+        elseif splitup[1] == '\\selectAndDropUp' then
+            selectedSlot = turtle.getSelectedSlot()
+            turtle.select(tonumber(splitup[2]))
+            turtle.dropUp()
+            turtle.select(selectedSlot)
+            ws.send('{"type":"COMMAND_RESPONSE","response":"true"}')
+            sendScanInventory()
+        elseif splitup[1] == '\\selectAndDropDown' then
+            selectedSlot = turtle.getSelectedSlot()
+            turtle.select(tonumber(splitup[2]))
+            turtle.dropDown()
+            turtle.select(selectedSlot)
+            ws.send('{"type":"COMMAND_RESPONSE","response":"true"}')
+            sendScanInventory()
         elseif splitup[1] == '\\equipLeftTo' then
             selectedSlot = turtle.getSelectedSlot()
             turtle.select(tonumber(splitup[2]))
@@ -467,6 +481,30 @@ function parseWebSocketRecieve(data)
             
             ws.send('{"type":"COMMAND_RESPONSE","response":"'.. dump(status) ..'"}')
             sendScanInventory()
+        elseif splitup[1] == '\\selectAndPlace' then
+            selectedSlot = turtle.getSelectedSlot()
+            turtle.select(tonumber(splitup[2]))
+            status = turtle.place()
+            turtle.select(selectedSlot)
+            sendScanInventory()
+            sendWorldUpdate()
+            ws.send('{"type":"COMMAND_RESPONSE","response":"' .. dump(status) .. '"}')
+        elseif splitup[1] == '\\selectAndPlaceUp' then
+            selectedSlot = turtle.getSelectedSlot()
+            turtle.select(tonumber(splitup[2]))
+            status = turtle.placeUp()
+            turtle.select(selectedSlot)
+            sendScanInventory()
+            sendWorldUpdate()
+            ws.send('{"type":"COMMAND_RESPONSE","response":"' .. dump(status) .. '"}')
+        elseif splitup[1] == '\\selectAndPlaceDown' then
+            selectedSlot = turtle.getSelectedSlot()
+            turtle.select(tonumber(splitup[2]))
+            status = turtle.placeDown()
+            turtle.select(selectedSlot)
+            sendScanInventory()
+            sendWorldUpdate()
+            ws.send('{"type":"COMMAND_RESPONSE","response":"' .. dump(status) .. '"}')
         elseif splitup[1] == '\\refuelAt' then
             selectedSlot = turtle.getSelectedSlot()
             turtle.select(tonumber(splitup[2]))
@@ -475,10 +513,13 @@ function parseWebSocketRecieve(data)
             
             ws.send('{"type":"COMMAND_RESPONSE","response":"'.. dump(status) ..'"}')
             sendScanInventory()
+        elseif splitup[1] == '\\command' then
+            local commandToExecute = string.gsub(data, '\\command ','')
+            status, res = pcall(loadstring(commandToExecute))
+            ws.send('{"type":"COMMAND_RESPONSE","response":{"status":"'.. dump(status) ..'","response":"' .. dump(res) .. '"}}')
         else
             ws.send('{"type":"COMMAND_RESPONSE","response":"UNKNOWN COMMAND"}')
         end
-        print(textutils.serializeJSON(state))
     end
 end
 
@@ -524,10 +565,10 @@ function main()
             connectToWebsocket()
         elseif event == "websocket_message" then
             print("Recieved: ")
+            print(e[3])
             if pcall(parseWebSocketRecieve, e[3]) == false then
                 ws.send('{"type":"COMMAND_RESPONSE","response":"COMMAND ERROR"}')
             end
-            print(e[3])
         elseif event == "websocket_closed" then
             printError("Server closed.")
             connectToWebsocket()

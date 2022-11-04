@@ -1,7 +1,7 @@
 import { Box } from '@mui/system';
 import React, { useState } from "react";
 import TextField from '@mui/material/TextField';
-import { Button, Grid, Menu, MenuItem, TextareaAutosize } from '@mui/material';
+import { Button, Divider, Grid, Menu, MenuItem, TextareaAutosize } from '@mui/material';
 //
 
 
@@ -22,7 +22,6 @@ function TurtlePortal(props) {
   const [contextMenu, setContextMenu] = React.useState(null);
   const handleContextMenu = (event, index) => {
     event.preventDefault();
-    console.log(index)
     setContextMenu(
       contextMenu === null
         ? {
@@ -51,6 +50,16 @@ function TurtlePortal(props) {
     handleClose();
   };
 
+  const handleDropUp = (index) => {
+    sendMessageText('\\selectAndDropUp ' + index.toString())
+    handleClose();
+  };
+
+  const handleDropDown = (index) => {
+    sendMessageText('\\selectAndDropDown ' + index.toString())
+    handleClose();
+  };
+
   const handleEquipLeft = (index) => {
     sendMessageText('\\equipLeftTo ' + index.toString())
     handleClose();
@@ -64,6 +73,21 @@ function TurtlePortal(props) {
 
   const handleRefuel = (index) => {
     sendMessageText('\\refuelAt ' + index.toString())
+    handleClose();
+  };
+
+  const handlePlace = (index) => {
+    sendMessageText('\\selectAndPlace ' + index.toString())
+    handleClose();
+  };
+
+  const handlePlaceUp = (index) => {
+    sendMessageText('\\selectAndPlaceUp ' + index.toString())
+    handleClose();
+  };
+
+  const handlePlaceDown = (index) => {
+    sendMessageText('\\selectAndPlaceDown ' + index.toString())
     handleClose();
   };
 
@@ -91,11 +115,22 @@ function TurtlePortal(props) {
                           : undefined
                       }
                     >
-                      <MenuItem onClick={()=>handleTransferTo(index+1)}>TransferTo</MenuItem>
+                      <MenuItem onClick={() => handleTransferTo(index+1)}>TransferTo</MenuItem>
+                      <Divider sx={{ my: 0.5 }} />
                       <MenuItem onClick={() => handleDrop(index+1)}>Drop</MenuItem>
-                      <MenuItem onClick={()=>handleEquipLeft(index+1)}>Equip Left</MenuItem>
-                      <MenuItem onClick={()=>handleEquipRight(index+1)}>Equip Right</MenuItem>
-                      <MenuItem onClick={()=>handleRefuel(index+1)}>Refuel</MenuItem>
+                      <MenuItem onClick={() => handleDropUp(index+1)}>Drop Up</MenuItem>
+                      <MenuItem onClick={() => handleDropDown(index+1)}>Drop Down</MenuItem>
+                      <Divider sx={{ my: 0.5 }} />
+                      <MenuItem onClick={() => handleEquipLeft(index+1)}>Equip Left</MenuItem>
+                      <MenuItem onClick={() => handleEquipRight(index+1)}>Equip Right</MenuItem>
+                      <Divider sx={{ my: 0.5 }} />
+                      <MenuItem onClick={() => handlePlace(index+1)}>Place</MenuItem>
+                      <MenuItem onClick={() => handlePlaceUp(index+1)}>Place Up</MenuItem>
+                      <MenuItem onClick={() => handlePlaceDown(index+1)}>Place Down</MenuItem>
+                      <Divider sx={{ my: 0.5 }} />
+                      <MenuItem onClick={() => handleRefuel(index+1)}>Refuel</MenuItem>
+                      <Divider sx={{ my: 0.5 }} />
+                      <MenuItem onClick={() => handleClose()}>Close</MenuItem>
                     </Menu>
                   </div>
                 </Grid>
@@ -108,7 +143,6 @@ function TurtlePortal(props) {
   }
 
   function _onMouseDown(e, index) {
-    console.log(e.target.localName )
     if (!(e.target.localName === 'div' || e.target.localName === 'span')) {
       return
     }
@@ -158,7 +192,7 @@ function TurtlePortal(props) {
   return (
     <>
       <Box sx={{ minHeight: '100vh' }}>
-        <TextField
+        <TextareaAutosize
           value={commandText}
           onChange={handleChange}/>
         <Button

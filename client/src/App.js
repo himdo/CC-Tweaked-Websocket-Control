@@ -101,7 +101,6 @@ class App extends Component {
   };
 
   connectToTurtle(turtleId) {
-    console.log(turtleId)
     this.setState({connectedTurtle: turtleId})
   }
 
