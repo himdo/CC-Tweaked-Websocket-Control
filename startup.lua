@@ -517,6 +517,8 @@ function parseWebSocketRecieve(data)
             local commandToExecute = string.gsub(data, '\\command ','')
             status, res = pcall(loadstring(commandToExecute))
             ws.send('{"type":"COMMAND_RESPONSE","response":{"status":"'.. dump(status) ..'","response":"' .. dump(res) .. '"}}')
+        elseif splitup[1] == '\\ping' then
+            ws.send('{"type":"COMMAND_RESPONSE","response":"pong"}')
         else
             ws.send('{"type":"COMMAND_RESPONSE","response":"UNKNOWN COMMAND"}')
         end
@@ -566,8 +568,9 @@ function main()
         elseif event == "websocket_message" then
             print("Recieved: ")
             print(e[3])
-            if pcall(parseWebSocketRecieve, e[3]) == false then
-                ws.send('{"type":"COMMAND_RESPONSE","response":"COMMAND ERROR"}')
+            status, res = pcall(parseWebSocketRecieve, e[3])
+            if status == false then
+                ws.send('{"type":"COMMAND_RESPONSE","response":"COMMAND ERROR: ' ..dump(res)..'"}')
             end
         elseif event == "websocket_closed" then
             printError("Server closed.")
@@ -576,6 +579,10 @@ function main()
             ws.close()
             print("Closing socket")
             break
+        elseif event == "turtle_inventory" then
+            if ws ~= nil then
+                sendScanInventory()
+            end
         end
     end
 end

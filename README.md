@@ -1,5 +1,86 @@
 Portal \ Turtle Commands:
 
+# \Forward
+`\forward`
+
+# \Back
+`\back`
+
+# \Up
+`\up`
+
+# \Down
+`\down`
+
+# \TurnLeft
+`\turnLeft`
+
+# \TurnRight
+`\turnRight`
+
+# \Dig
+`\dig (side)`
+
+# \DigUp
+`\digUp (side)`
+
+# \DigDown
+`\digDown (side)`
+
+# \Place
+`\place (text)`
+
+# \PlaceUp
+`\placeUp (text)`
+
+# \PlaceDown
+`\placeDown (text)`
+
+# \Drop
+`\drop (count)`
+
+# \DropUp
+`\dropUp (count)`
+
+# \DropDown
+`\dropDown (count)`
+
+# \Select
+`\select [slot number]`
+
+# \GetItemCount
+`\getItemCount (slot number)`
+
+# \GetItemSpace
+`\getItemSpace (slot number)`
+
+# \Detect
+`\detect`
+
+# \DetectUp
+`\detectUp`
+
+# \DetectDown
+`\detect`
+
+# \Compare
+`\compare`
+
+# \CompareUp
+`\compareUp`
+
+# \CompareDown
+`\compareDown`
+
+# \Attack
+`\attack (side)`
+
+# \AttackUp
+`\attackUp (side)`
+
+# \AttackDown
+`\attackDown (side)`
+
 # \Command
 `\command [lua commands]`
 

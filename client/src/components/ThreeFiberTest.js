@@ -38,6 +38,14 @@ function onClickBox(args) {
   args.setControls(args.controls)
 }
 
+function onPointerOverBox(args) {
+  args.setProp(args.text)
+}
+
+function onPointerOutBox(args) {
+  args.setProp(args.text)
+}
+
 function Box(props) {
   const mesh = useRef(null)
   const [hovered, setHover] = useState(false)
@@ -49,9 +57,9 @@ function Box(props) {
       ref={mesh}
       onPointerDown={console.log}
       // scale={active ? 1.5 : 1}
-      onClick={(event) => {onClickBox({name: props.name, position: props.position, controls: props.controls, setControls: props.setControls}), setActive(!active)}}
-      onPointerOver={(event) => setHover(true)}
-      onPointerOut={(event) => setHover(false)}>
+      onClick={(event) => {onClickBox({name: props.name, position: props.position, controls: props.controls, setControls: props.setControls})}}
+      onPointerOver={(event) => onPointerOverBox({setProp: props.setToolTipText, text: props.name})}
+      onPointerOut={(event) => onPointerOutBox({setProp: props.setToolTipText, text: ''})}>
       <boxGeometry args={[1, 1, 1]} />
       <meshStandardMaterial color={props.color} transparent={props.transparent} opacity={props.transparent ? (typeof (props.opacity) !== 'undefined' ? props.opacity : 0.5) : 1}/>
     </mesh>
@@ -243,6 +251,10 @@ class ThreeFiber extends Component {
     this.setState({controls: args})
   }
 
+  updateToolTipText(args) {
+    this.setState({toolTipText: args})
+  }
+
   _onMouseMove(e) {
     this.setState({ mousePosition: {x: e.clientX, y: e.clientY} });
   }
@@ -325,7 +337,15 @@ class ThreeFiber extends Component {
                 opacity = 0
               }
 
-              return <Box key={index} controls={this.state.controls} setControls={this.updateStateControls.bind(this)} position={[positions[2], positions[1], positions[0]]} name={name} color={Color({
+              return <Box 
+              key={index} 
+              controls={this.state.controls} 
+              setControls={this.updateStateControls.bind(this)} 
+              position={[positions[2], positions[1], positions[0]]} 
+              name={name} 
+              setToolTipText={this.updateToolTipText.bind(this)}
+              
+              color={Color({
                 h: hashCode(name) % 360,
                 s: 60,
                 l: 40,
