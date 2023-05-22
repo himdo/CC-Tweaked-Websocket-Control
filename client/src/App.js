@@ -36,19 +36,18 @@ class App extends Component {
       this.setState({ isLoading: false, isConnected: true, shouldFadeOut: true, attempts: 0, message: 'Connected...' });
     }
 
-  client.onmessage = (msg) => {
-    const obj = JSON.parse(msg.data);
-    console.log(obj)
-    switch (obj.type) {
-      case 'HANDSHAKE':
-        this.setState({ turtleStates: obj.message.turtleStates });
-        break;
-        case 'RESPONSE':
-          if (typeof(obj.message.data) === 'object') {
-            obj.message.data = JSON.stringify(obj.message.data)
-          }
-          this.setState({serverMostRecentResponse: obj.message.data})
-          break
+    client.onmessage = (msg) => {
+      const obj = JSON.parse(msg.data);
+      switch (obj.type) {
+        case 'HANDSHAKE':
+          this.setState({ turtleStates: obj.message.turtleStates });
+          break;
+          case 'RESPONSE':
+            if (typeof(obj.message.data) === 'object') {
+              obj.message.data = JSON.stringify(obj.message.data)
+            }
+            this.setState({serverMostRecentResponse: obj.message.data})
+            break
         case 'INVENTORY':
           let turtleLocal = this.state.turtles
           if (!turtleLocal[obj.message.computerId]) {
@@ -82,18 +81,18 @@ class App extends Component {
         default:
           console.error('Could not parse websocket message', obj);
           break;
-    }
-  };
+      }
+    };
 
-  client.onclose = (e) => {
-    if (e.wasClean) {
-      console.info(`[close] Connection closed cleanly, code=${e.code} reason=${e.reason}`);
-    } else {
-      console.warn('[close] Connection died');
-    }
+    client.onclose = (e) => {
+      if (e.wasClean) {
+        console.info(`[close] Connection closed cleanly, code=${e.code} reason=${e.reason}`);
+      } else {
+        console.warn('[close] Connection died');
+      }
 
-    const attempts = this.state.attempts;
-    this.setState({ isLoading: false, isConnected: false, message: 'Failed to connect', attempts: attempts + 1 });
+      const attempts = this.state.attempts;
+      this.setState({ isLoading: false, isConnected: false, message: 'Failed to connect', attempts: attempts + 1 });
       setTimeout(() => {
         this.connect();
       }, 1000 + 1000 * Math.pow(2, Math.min(attempts, 8)));
