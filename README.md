@@ -61,7 +61,7 @@ Portal \ Turtle Commands:
 `\detectUp`
 
 # \DetectDown
-`\detect`
+`\detectDown`
 
 # \Compare
 `\compare`

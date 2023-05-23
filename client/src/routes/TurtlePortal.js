@@ -161,7 +161,7 @@ function TurtlePortal(props) {
     }
     return (
       <span style={{justifyContent: 'center'}}>
-      Fuel: {(connectedComputer?.fuel)? connectedComputer.fuel: 'N/A'}
+        Fuel: {(connectedComputer?.fuel)? connectedComputer.fuel: 'N/A'} / {(connectedComputer?.maxFuel)? connectedComputer.maxFuel: 'N/A'}
       </span>
     )
   }

@@ -538,7 +538,7 @@ function sendScanInventory()
             table.insert(inventory,  details)
         end
     end
-    ws.send('{"type":"TURTLE_INVENTORY","response":{"inventory":'.. dump(textutils.serializeJSON(inventory)) ..',"fuel":"'.. dump(turtle.getFuelLevel()) ..'","selectedSlot":"' .. dump(turtle.getSelectedSlot()) .. '"}}')
+    ws.send('{"type":"TURTLE_INVENTORY","response":{"inventory":'.. dump(textutils.serializeJSON(inventory)) ..',"fuel":"'.. dump(turtle.getFuelLevel()) ..'","maxFuel":"'.. dump(turtle.getFuelLimit()) ..'","selectedSlot":"' .. dump(turtle.getSelectedSlot()) .. '"}}')
 end
 
 function sendWorldUpdate()
