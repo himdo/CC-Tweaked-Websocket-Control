@@ -55,7 +55,7 @@ function Box(props) {
     <mesh
       {...props}
       ref={mesh}
-      onPointerDown={console.log}
+      // onPointerDown={console.log}
       // scale={active ? 1.5 : 1}
       onClick={(event) => {onClickBox({name: props.name, position: props.position, controls: props.controls, setControls: props.setControls})}}
       onPointerOver={(event) => onPointerOverBox({setProp: props.setToolTipText, text: props.name})}
@@ -133,6 +133,56 @@ function Model({ url, position, rotation, name }) {
 			<primitive ref={ref} object={obj.scene} />
 		</>
 	);
+}
+
+function OtherTurtles({ turtles, switchTurtle }) {
+	const GLTFLoader = require('three/examples/jsm/loaders/GLTFLoader').GLTFLoader;
+	const obj = useLoader(GLTFLoader, "/otherturtle.glb");
+
+	return (
+		<>
+			{turtles.map((turtle) => <OtherTurtle key={turtle.id} turtle={turtle} obj={obj} switchTurtle={switchTurtle} />)}
+		</>
+	);
+}
+
+function OtherTurtle({ obj, turtle, switchTurtle }) {
+	const geom = useMemo(() => obj.scene.clone(true), []);
+  let position = turtle['gps']
+  let heading = 0
+  switch (turtle['heading']) {
+    case 1:
+      heading = 1
+      break;
+    case 2:
+      heading = 4
+      break;
+    case 3:
+      heading = 3
+      break;
+    case 4:
+      heading = 2
+      break;
+  
+    default:
+      break;
+  }
+	return <>
+		<primitive
+			position={[position.z, position.y, position.x]}
+			rotation={[0, -(heading) * Math.PI / 2, 0]}
+			object={geom}
+		/>
+		<mesh
+			onPointerUp={() => switchTurtle(turtle.id)}
+			visible={false}
+			position={[position.z, position.y, position.x]}
+			name={turtle.label}
+			scale={[1, 1, 1]}
+		>
+			<boxBufferGeometry args={[1, 1, 1]} />
+		</mesh>
+	</>;
 }
 
 export const hashCode = function (s) {
@@ -269,7 +319,6 @@ class ThreeFiber extends Component {
   }
 
   _onKeyDown(e) {
-    console.log(e)
     switch (e.key) {
       case "w":
         this.sendMessage('\\forward')
@@ -338,25 +387,27 @@ class ThreeFiber extends Component {
               }
 
               return <Box 
-              key={index} 
-              controls={this.state.controls} 
-              setControls={this.updateStateControls.bind(this)} 
-              position={[positions[2], positions[1], positions[0]]} 
-              name={name} 
-              setToolTipText={this.updateToolTipText.bind(this)}
-              
-              color={Color({
-                h: hashCode(name) % 360,
-                s: 60,
-                l: 40,
-              }).toString()}
-              transparent={true}
-              opacity={opacity}/>
+                key={index} 
+                controls={this.state.controls} 
+                setControls={this.updateStateControls.bind(this)} 
+                position={[positions[2], positions[1], positions[0]]} 
+                name={name} 
+                setToolTipText={this.updateToolTipText.bind(this)}
+                
+                color={Color({
+                  h: hashCode(name) % 360,
+                  s: 60,
+                  l: 40,
+                }).toString()}
+                transparent={true}
+                opacity={opacity}/>
             })}
             
             <Compass controls={this.state.controls}/>
-            {Object.keys(this.props.turtleStates).map((item, index) => {
-              let turtleState = this.props.turtleStates[item]
+
+            {Object.entries(this.props.turtleStates).map((key, value) => {
+              if (this.props.connectedTurtle != key[0]) return
+              let turtleState = key[1]
               let position = turtleState['gps']
               let heading = 0
               switch (turtleState['heading']) {
@@ -376,10 +427,19 @@ class ThreeFiber extends Component {
                 default:
                   break;
               }
+              return <Model key={value} name={value} url="/turtle.glb" position={[position.z, position.y, position.x]} rotation={[0, -(heading) * Math.PI / 2, 0]} />
+            })}
 
-              return(
-                <Model key={index} name={'TODO'} url="/turtle.glb" position={[position.z, position.y, position.x]} rotation={[0, -(heading) * Math.PI / 2, 0]} />
-              )
+            {Object.entries(this.props.turtleStates).map((key, value) => {
+              if (this.props.connectedTurtle == key[0]) return
+              let turtles = []
+              for (let i of Object.entries(this.props.turtleStates)) {
+                if (this.props.connectedTurtle == i[0]) continue
+                i[1]['id'] = i[0]
+                turtles.push(i[1])
+              }
+              // return <OtherTurtles key={value} turtles={turtles} />
+              return <OtherTurtles key={value} turtles={turtles} switchTurtle={this.props.updateConnectedTurtle} />
             })}
           </Canvas>
         </Tooltip>

@@ -25,6 +25,10 @@ class App extends Component {
     knownBlocks: {},
     serverMostRecentResponse: ''
   };
+  constructor(props) {
+    super (props)
+    this.connectToTurtle = this.connectToTurtle.bind(this)
+  }
 
   connect() {
     this.setState({ isLoading: true, isConnected: false, shouldFadeOut: false, attempts: 0, message: 'Connecting...' });
@@ -100,6 +104,7 @@ class App extends Component {
   };
 
   connectToTurtle(turtleId) {
+    console.log(turtleId)
     this.setState({connectedTurtle: turtleId})
   }
 
@@ -154,7 +159,7 @@ class App extends Component {
           </header>
         }
 
-        <ThreeFiberTest socket={this.state.socket} connectedTurtle={this.state.connectedTurtle} world={this.state.world} knownBlocks={this.state.knownBlocks} turtleStates={this.state.turtleStates}/>
+        <ThreeFiberTest socket={this.state.socket} connectedTurtle={this.state.connectedTurtle} world={this.state.world} knownBlocks={this.state.knownBlocks} turtleStates={this.state.turtleStates} updateConnectedTurtle={this.connectToTurtle}/>
       </div>
     )
   };
