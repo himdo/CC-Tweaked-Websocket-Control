@@ -199,7 +199,7 @@ function TurtlePortal(props) {
 
   return (
     <>
-      <Box sx={{ minHeight: '100vh' }}>
+      <Box sx={{ minHeight: '100%' }}>
         <TextareaAutosize
           value={commandText}
           onChange={handleChange}

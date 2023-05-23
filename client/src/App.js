@@ -4,7 +4,7 @@ import { w3cwebsocket as W3CWebSocket } from 'websocket';
 import React from 'react';
 
 import { Component } from 'react';
-import { Button, Grid } from '@mui/material';
+import { Button, Fab, Grid } from '@mui/material';
 import TurtlePortal from './routes/TurtlePortal';
 import ThreeFiberTest from './components/ThreeFiberTest';
 
@@ -23,7 +23,8 @@ class App extends Component {
     name: '',
     connectedTurtle: undefined,
     knownBlocks: {},
-    serverMostRecentResponse: ''
+    serverMostRecentResponse: '',
+    showUI: false
   };
   constructor(props) {
     super (props)
@@ -112,24 +113,33 @@ class App extends Component {
     this.connect();
   }
 
+  toggleUI() {
+    this.setState({showUI: !this.state.showUI})
+  }
+
   render() {
     return (
       <div className="App">
-
+        <div style={{textAlign: 'left'}}>
+          <Fab color="primary" aria-label="add" onClick={() => {this.toggleUI()}} style={{position: 'fixed'}}>
+            {this.state.showUI? '-':'+'}
+          </Fab>
+        </div>
         {/* ======================================================== */}
         {/* ======================================================== */}
         {/* ================== Turtle Portal ==================== */}
         {/* ======================================================== */}
         {/* ======================================================== */}
+        
         {
-          typeof (this.state.connectedTurtle) != 'undefined'  && 
+          this.state.showUI && typeof (this.state.connectedTurtle) != 'undefined'  && 
           <div style={{textAlign: 'left'}}><Button onClick={() => {
             this.connectToTurtle(undefined)
             }}>Back</Button>
           </div>
         }
         {
-          typeof (this.state.connectedTurtle) != 'undefined' && 
+          this.state.showUI && typeof (this.state.connectedTurtle) != 'undefined' && 
           <TurtlePortal socket={this.state.socket} connectedTurtle={this.state.connectedTurtle} turtles={this.state.turtles} serverMostRecentResponse={this.state.serverMostRecentResponse} />
         }
 
@@ -141,9 +151,8 @@ class App extends Component {
         {/* ======================================================== */}
         {/* ======================================================== */}
         {
-          !this.state.connectedTurtle &&
+          this.state.showUI && !this.state.connectedTurtle &&
           <header className="App-header">
-            <img src={logo} className="App-logo" alt="logo" />
             {this.state.turtleStates && <Grid container>
               {Object.keys(this.state.turtleStates).map((item, index) => {
                 return (
@@ -158,8 +167,9 @@ class App extends Component {
               </Grid>}
           </header>
         }
-
-        <ThreeFiberTest socket={this.state.socket} connectedTurtle={this.state.connectedTurtle} world={this.state.world} knownBlocks={this.state.knownBlocks} turtleStates={this.state.turtleStates} updateConnectedTurtle={this.connectToTurtle}/>
+        <div className="ThreeJS" >
+          <ThreeFiberTest socket={this.state.socket} connectedTurtle={this.state.connectedTurtle} world={this.state.world} knownBlocks={this.state.knownBlocks} turtleStates={this.state.turtleStates} updateConnectedTurtle={this.connectToTurtle}/>
+        </div>
       </div>
     )
   };

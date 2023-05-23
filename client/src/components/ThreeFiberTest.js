@@ -241,7 +241,7 @@ class ThreeFiber extends Component {
       "turnRight":"D",
       "digUp":"R",
       "dig":"F",
-      "digDown":"B",
+      "digDown":"V",
     }
     for (let i = 0; i < Object.keys(turtleControls).length; i++) {
       folderTurtleControls.add( turtleControls, Object.keys(turtleControls)[i] );
