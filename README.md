@@ -1,3 +1,10 @@
+To startup, ensure the turtle has proper GPS connection,
+on first startup have modem equipped or in the inventory to get the starting position and heading
+
+
+I recommend having a pickaxe and a crafting bench in the turtle so it can do the most amount of stuff
+
+
 Portal \ Turtle Commands:
 
 # \Forward

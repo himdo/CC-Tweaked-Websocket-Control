@@ -35,13 +35,58 @@ function connectToWebsocket()
     ws, err = http.websocketAsync('ws://127.0.0.1:8081')
 end
 
+function getEquipedPeripherals() 
+    local locations = peripheral.getNames()
+    local l1 = locations[1]
+    local l2 = locations[2]
+
+    local p = {}
+    if l1 ~= nil then
+        table.insert(p, peripheral.getType(l1))
+    end
+    if l2 ~= nil then
+        table.insert(p, peripheral.getType(l2))
+    end
+    return p
+end
+
+function Set (list)
+    local set = {}
+    for _, l in ipairs(list) do set[l] = true end
+    return set
+  end
+
+function modemEquiped()
+    local p = Set(getEquipedPeripherals())
+    return p['modem'] ~= nil
+end
+
 function getHeading(forceNew)
     if (forceNew ~= true) then
         if state['heading'] ~= 0 then
             return state['heading']
         end
     end
-
+    local modemIsEquiped = modemEquiped()
+    if modemIsEquiped == false then
+        local inventory = scanInventory()
+        local foundModem = false
+        for location,item in pairs(inventory) do
+            local itemName = item.name
+            if itemName ~= nil then
+                if string.find(itemName, 'computercraft') and string.find(itemName,'modem') then
+                    foundModem = true
+                    turtle.select(location)
+                    turtle.equipLeft()
+                    break
+                end
+            end
+        end
+        if foundModem == false then
+            print("No Modem Found, Please add one to inventory or equip one")
+            return false
+        end
+    end
     local x1, _, z1 = gps.locate()
 
     local moved, _ = turtle.forward()
@@ -526,7 +571,7 @@ function parseWebSocketRecieve(data)
     end
 end
 
-function sendScanInventory()
+function scanInventory()
     inventory = {}
     for i=1,16 do
         details = turtle.getItemDetail(i)
@@ -539,6 +584,11 @@ function sendScanInventory()
             table.insert(inventory,  details)
         end
     end
+    return inventory
+end
+
+function sendScanInventory()
+    local inventory = scanInventory()
     ws.send('{"type":"TURTLE_INVENTORY","response":{"inventory":'.. dump(textutils.serializeJSON(inventory)) ..',"fuel":"'.. dump(turtle.getFuelLevel()) ..'","maxFuel":"'.. dump(turtle.getFuelLimit()) ..'","selectedSlot":"' .. dump(turtle.getSelectedSlot()) .. '"}}')
 end
 
@@ -550,7 +600,10 @@ end
 function main()
     loadState()
     if (state == nil or state['gps'] == nil or state['heading'] == 0) then
-        getHeading(true)
+        local heading = getHeading(true)
+        if (heading == false) then
+            return
+        end
     end
     if (state['gps'] == nil) then
         getGPS()
