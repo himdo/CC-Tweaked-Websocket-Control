@@ -1,4 +1,4 @@
-state = nil
+state = {}
 -- {
 --     heading = 0
 -- }
@@ -25,6 +25,7 @@ function loadState()
         state = textutils.unserialize(contents)
     else
         local file = fs.open(settingsPath, 'w')
+        file.write(textutils.serialise(state))
         file.close()
     end
 end
@@ -548,7 +549,7 @@ end
 
 function main()
     loadState()
-    if (state['gps'] == nil or state['heading'] == 0) then
+    if (state == nil or state['gps'] == nil or state['heading'] == 0) then
         getHeading(true)
     end
     if (state['gps'] == nil) then
